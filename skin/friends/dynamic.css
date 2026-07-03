@@ -1,0 +1,56 @@
+QWidget#containerwidget {
+	background: #f5f5f3;
+}
+
+#tabbottom { background: #e3e3e0;}
+#tabtop1 {background: url('tabtop1.png');}
+#tabtop2 {background: url('tabtop2.png') top repeat transparent;}
+#tabtop3 {background: url('tabtop3.png');}
+
+/* QPushButton */
+QPushButton#cmdAdd {
+	background: url('Button') center no-repeat #3fd968;
+	border-radius: 25px;
+	border: none;
+	color: transparent;
+	font-weight: bold;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+QPushButton#cmdAdd:hover {background:url('Button-h') center no-repeat #2fc457; color: transparent;}
+QPushButton#cmdAdd:pressed {background:url('Button-h')center no-repeat #27ad4b; color: transparent;}
+
+
+
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical {
+  width: 0px;
+  height: 0px;
+}
+
+QTreeView{font-weight: bold;}
+
+
+QScrollBar:vertical {
+	background: transparent;
+	border: none;
+	border-radius: 4px;
+	margin: 4px 0px 4px 0px;
+	width: 8px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background: #a9a9a4;}
+
+QScrollBar::handle:vertical {
+	background: #c9c9c4;
+	border: none;
+	border-radius: 4px;
+	margin: 1px 0px 1px 0px;
+	min-height: 75px;
+	width: 5px;
+}

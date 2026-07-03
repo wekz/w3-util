@@ -1,0 +1,6 @@
+QTextEdit#txtChat {
+	qproperty-readOnly: true;
+	qproperty-textInteractionFlags: 'TextSelectableByMouse';
+}
+
+

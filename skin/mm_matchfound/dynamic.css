@@ -1,0 +1,68 @@
+QWidget#containerwidget {
+        background: url('bg.png');
+}
+
+
+/* QPushButton */
+QPushButton {
+	background: #648b50;
+        border: none;
+	border-radius: 5px;
+	color: #dadcd8;
+	font-family: Calibri,Helvetica,arial;
+	font-size: 11px;
+	font-weight: bold; 
+        text-transform: uppercase;
+}
+
+QPushButton:hover {
+	background: #5c804a;        
+}
+QPushButton:pressed {
+	background: #567846;	      
+}
+
+#pAvatar_00, #pAvatar_01, #pAvatar_02, #pAvatar_03, #pAvatar_04, #pAvatar_05, #pAvatar_06, #pAvatar_07, #pAvatar_08, #pAvatar_09 { background:  url('bg_avatar_normal');}
+
+#lblmatchfound {background:  transparent;
+        border: none;
+	color: #FFF;
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold; 
+        text-transform: uppercase;
+        qproperty-alignment: 'AlignCenter';
+	font-size: 18px;}
+
+#acceptCount {background:  transparent;
+        border: none;
+	color: #e04546;
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold; 
+        text-transform: uppercase;
+        qproperty-alignment: 'AlignRight';
+	font-size: 12px;}
+
+#acceptCount, #timerSeconds, #gameMode, #lblmap {background:  transparent;
+        border: none;
+	color: #e04546;
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold; 
+        text-transform: uppercase;
+        qproperty-alignment: 'AlignRight';
+	font-size: 12px;}
+
+#gameMode{ color: #1195bb;}
+
+#timerSeconds {qproperty-alignment: 'AlignCenter';}
+
+#mapName {background:  transparent;
+        border: none;
+	color: #fbfbfb;
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold; 
+        text-transform: normal;
+        qproperty-alignment: 'AlignLeft';
+	font-size: 12px;}
+
+#mapIcon { background:  url('map');}
+#lblmap { color: #1195bb; font-size: 12px;}

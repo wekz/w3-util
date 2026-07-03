@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>widget</class>
+ <widget class="QWidget" name="widget">
+  <widget class="QWidget" name="bg"/>
+ <widget class="QLabel" name="ShadowTop"/>
+ <widget class="QLabel" name="ShadowLeft"/>
+ <widget class="QLabel" name="ShadowRight"/>
+ <widget class="QLabel" name="ShadowBot"/>
+</widget>
+</ui>

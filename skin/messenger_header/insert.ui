@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+
+	<class>widget</class>
+	<widget class="QWidget" name="widget">
+		<widget class="QWidget" name="Profile"/>
+		<widget class="QWidget" name="HideShadowV"/>
+		<widget class="QWidget" name="HideShadowH"/>
+		<widget class="QWidget" name="DescriptionBG"/>
+		<widget class="QWidget" name="profileimg"/>
+		<widget class="QWidget" name="design2"/>
+ <widget class="QLabel" name="Descriptionlbl">
+   <property name="text">
+    <string>Description:</string>
+   </property>
+  </widget>
+ 	</widget>
+
+</ui>

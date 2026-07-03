@@ -1,0 +1,121 @@
+QComboBox#Status {
+	background: transparent;  border: none;
+	text-shadow: none; outline: none;
+	border-radius: 5px;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	image: none;
+	qproperty-alignment: 'AlignRight';
+	text-transform: uppercase;
+	text-align: Right;
+	font-weight: 600;
+	padding-left: 12px;
+}
+
+QComboBox#Status:hover {
+	background: #ffffff;
+	image: none;
+}
+
+QComboBox#Status QAbstractItemView{
+	background: #f5f5f3;
+	border: 1px solid #c6c6c1;
+	border-radius: 0px;
+	padding: 3px;
+	selection-background-color: #3fd968;
+	selection-color: #0d2b16;
+	font-size: 10px; text-align: Center;
+	qproperty-alignment: 'AlignCenter';
+}
+
+QComboBox#Status QAbstractItemView:hover {
+	color: #1e1e1c !important;
+}
+
+QComboBox::down-arrow { background: url('open11.png') right bottom no-repeat transparent;
+	image: none;
+}
+
+QComboBox::down-arrow:hover{ background: url('open112.png')  right bottom no-repeat transparent;
+	image: none;
+}
+
+#StatusIcon {
+	margin: 0px;
+	padding: 0px;
+}
+
+#Level{color:#75756f; font-family: "Segoe UI", "Inter", "Arial"; font-size: 10px; text-transform: uppercase; font-weight: 600;}
+
+#profileimg{ background: transparent;}
+#design2 { background: transparent;}
+
+QTextEdit#Description {
+	background: transparent; text-align: center;
+	border: 0px solid #ffffff;
+	border-radius: 8px;
+	color: #75756f;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	qproperty-alignment: 'AlignCenter | AlignVCenter ';
+	padding-bottom: 2px;
+	padding-left: 6px; font-weight: normal;
+}
+
+#DescriptionBG {
+	background: #ffffff;
+	border-radius: 8px; }
+
+#Descriptionlbl { border: 1px solid transparent; border-bottom: 1px solid #dcdcd8; color:transparent; font-family: "Segoe UI", "Inter", "Arial"; font-size: 10px; text-transform: uppercase; font-weight: 600;}
+
+
+QTextEdit#Description:pressed{border: 1px solid #3fd968;}
+
+QTextEdit#Description:focus { border: 1px solid #3fd968;
+}
+
+
+
+
+QTextEdit#Description QScrollBar:vertical{
+	background: transparent;
+	width: 0;
+}
+
+QLabel#Name {color: #1e1e1c;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 12px;
+	text-align: left;
+	font-weight: 600;
+	qproperty-alignment: AlignCenter;
+	padding-top: 4px;
+}
+
+QProgressBar#XP { border: none;
+	background: #ececea; border-radius: 6px;
+	color: transparent;
+	font-size: 0px;
+}
+
+QProgressBar#XP::chunk {border: none;
+	background: qlineargradient( x1:0 y1:0, x2:1 y2:0, stop:0 #3fd968, stop:1 #3fd968);
+	border-radius: 6px;
+	color: #fff;
+	padding: 4px 10px;
+}
+
+QLabel#RemainingXP{
+	color: #1e1e1c;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	font-weight: 600;
+	qproperty-alignment: AlignCenter;
+	text-align: center;
+}
+#AvatarMask{ background: url('avatarmask.png') top left no-repeat;}
+
+#Avatar{background:url('main_no_avatar.png'); -webkit-transform: scale(0.999);
+  transform: scale(0.999);
+	border-bottom-right-radius: 2px;
+	border-bottom-left-radius: 2px;
+	border-top-right-radius: 2px;}

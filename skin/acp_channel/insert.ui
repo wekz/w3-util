@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+
+<class>widget</class>
+ <widget class="QWidget" name="widget">
+ <widget class="QLabel" name="BorderleftTop"/>
+ <widget class="QLabel" name="darkborder"/>
+ <widget class="QLabel" name="iconpreview"/>
+ <widget class="QLabel" name="iconedit"/>
+ <widget class="QLabel" name="designbullets"/>
+ </widget>
+</ui>

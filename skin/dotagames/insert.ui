@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+	<class>widget</class>
+	<widget class="QWidget" name="widget">
+		<widget class="QWidget" name="Signbg" />
+
+
+		<widget class="QWidget" name="openGamesHeader"/>
+		<widget class="QWidget" name="openGamesBody"/>
+
+		<widget class="QWidget" name="startGamesHeader"/>
+		<widget class="QWidget" name="startGamesBody"/>
+
+	</widget>
+</ui>

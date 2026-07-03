@@ -1,0 +1,10 @@
+QWidget#containerwidget {
+    background: #ffffff;
+    border: 1px solid #75756f;
+    border-radius: 8px;
+}
+
+QLabel {color: #1e1e1c;  font-family: "Segoe UI", "Inter", "Arial";
+        font-size: 10px;
+	background: transparent;
+}

@@ -1,0 +1,118 @@
+QWidget#containerwidget {
+        background: url('bg.png') top ; border: 1px solid #111;
+}
+
+#lblAvatar_00, #lblAvatar_01, #lblAvatar_02, #lblAvatar_03, #lblAvatar_04 {background: url('avatar-bg.png'); }
+#lblTier_0, #lblTier_1, #lblTier_2, #lblTier_3, #lblTier_4 { background-position: top; }
+#lblmap { color: #1195bb; font-size: 12px;
+         background:  transparent;
+        border: none;
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold; 
+        text-transform: uppercase;
+        qproperty-alignment: 'AlignRight';
+}
+
+
+#lbl_Info { background: url('info-n.png'); color: transparent; }
+#lbl_Info:hover { background: url('info-p.png'); color: transparent; }
+
+
+
+/* QComboBox */
+QComboBox{
+	background: #26272b;
+	border: none; border-bottom: 1px solid #34363c;
+	color: #FFF; qproperty-alignment: 'AlignLeft';  padding-left: 6px;
+	border-radius: 8px;
+        font-family: Calibri,Helvetica,Trebuchet MS; 
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: none;
+}
+
+QComboBox::down-arrow { background: url('open1.png') right no-repeat;
+	border: none;
+	border-radius: 0px;
+	image: none;
+	margin-top: 0px;
+}
+
+QComboBox::down-arrow:hover{
+	image: url('open1.png');
+}
+
+
+
+QComboBox QAbstractItemView{ background: #26272b;
+    border: 0px solid #333;
+    border-radius: 8px;
+    color: #FFF;   padding: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    font-family: calibri;
+    font-size: 11px; font-weight: bold;
+    text-transform: Capitalize;
+    qproperty-alignment: 'AlignCenter';
+	selection-background-color: #3fd968;
+	selection-color: #fff;
+}
+
+QComboBox:hover {
+	border-bottom: 1px solid #2a434e; background: #26272b;
+}
+
+/* QPushButton */
+#cmdSign {
+	background: #648b50;
+        border: none;
+	border-radius: 5px;
+	color: #dadcd8;
+	font-family: Calibri,Helvetica,arial;
+	font-size: 11px;
+	font-weight: bold; 
+        text-transform: uppercase;
+}
+
+#cmdSign:hover {
+	background: #5c804a;        
+}
+#cmdSign:pressed {
+	background: #567846;	      
+}
+
+
+
+QPushButton{
+	border: 0px solid #3e4249; border-radius: 0px;
+	background: url('name-bg.png') top center;
+	font-family: Calibri,Helvetica,Trebuchet MS;
+	font-weight: bold;
+	color: #c2c2c2;
+	font-size: 10px;
+	text-transform: normal;
+}
+
+QPushButton:hover{
+	background: url('name-bg.png') top center;
+	color: #f5f6fb;
+}
+
+
+QPushButton:pressed{
+	background: url('name-bg.png') top center;
+	color: #e4e7f2;
+}
+
+#cmdLeave{background:url('leave.png'); border:none; color: transparent; border-radius: 0px;}
+#cmdLeave:hover { background:url('leaveh.png'); border:none; color: transparent;}
+#cmdLeave:pressed { background:url('leavep.png'); border:none; color: transparent;}
+#txtQueueCount {
+	background:  transparent;
+	border: none;
+	color: #648b50;
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold; 
+	qproperty-alignment: 'AlignCenter';
+	font-size: 10px;
+}

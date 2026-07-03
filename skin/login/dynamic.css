@@ -1,0 +1,109 @@
+QWidget#containerwidget {
+	background: url('LoginBg.png'); border: 1px solid #c6c6c1;
+}
+
+/* QLabel */
+QLabel {
+	color: #1e1e1c;
+	font-weight: normal;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	qproperty-alignment: 'AlignRight | AlignVCenter';
+}
+
+QLabel#lblUser , QLabel#lblPassword {
+	color: #75756f;
+	font-weight: 600;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	qproperty-alignment: 'AlignLeft | AlignVCenter';
+	text-transform: uppercase;
+}
+
+QLabel#lblSavePassword{font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	color: #1e1e1c;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+/* QLineEdit */
+QLineEdit { padding-left: 8px;
+	background: #ffffff;
+	border: 1px solid #c6c6c1;
+	border-radius: 6px;
+	color: #1e1e1c;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 11px;
+	line-height: 18px;
+	font-weight: normal;
+}
+QLineEdit:hover{ border: 1px solid #a9a9a4; }
+QLineEdit:focus{ border: 1px solid #3fd968; }
+
+QLineEdit#txtPassword {
+	qproperty-echoMode: 'Password';
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-size: 12px;
+}
+
+QPushButton{
+	border: none; border-radius: 8px;
+	background: #3fd968;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-weight: 700;
+	color: #0d2b16;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+QPushButton:hover{
+	background: #2fc457;
+	color: #0d2b16;
+}
+
+
+QPushButton:pressed{
+	background: #27ad4b;
+	color: #0d2b16;
+}
+
+
+
+#lblSavePassword {background: transparent;}
+
+#lblRememberMe, #lblnew {color: #75756f;
+	font-weight: normal;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	qproperty-alignment: 'AlignLeft | AlignVCenter';
+	text-transform: none;}
+
+#lblnew{ qproperty-alignment: 'AlignRight | AlignVCenter';}
+
+
+#cmdRegister { background: transparent; border: none;
+	color: #27ad4b;
+	font-weight: 600;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 11px;
+	text-align: left;
+	text-transform: none;
+}
+
+
+QPushButton#cmdRegister:hover { text-decoration: underline; background: transparent; color: #1e9e4e; }
+QPushButton#cmdRegister:pressed { color: #27ad4b; background: transparent; }
+
+QPushButton#cmdForgotPassword{background: transparent; border: none;
+	font-weight: 600;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	qproperty-alignment: 'AlignRight | AlignVCenter';
+	padding-top: 0px;
+	color: #27ad4b;
+	text-transform: none;
+	text-align: right;
+}
+QPushButton#cmdForgotPassword:hover { text-decoration: underline; background: transparent; color: #1e9e4e; }
+QPushButton#cmdForgotPassword:pressed { color: #27ad4b; background: transparent; }

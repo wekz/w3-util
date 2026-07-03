@@ -1,0 +1,68 @@
+/* QListWidget */
+QListWidget {
+	border-top-right-radius: 0px;
+}
+
+QTextEdit {border-bottom: 1px solid #c6c6c1; border-top: 0px solid #c6c6c1;
+	background: #ececea;
+	color: #1e1e1c;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-size: 12px;
+	border-radius: 0px;
+	font-weight: normal; qproperty-verticalScrollBarPolicy: 'ScrollBarAlwaysOn';
+}
+
+#bullets {background: transparent;}
+
+#lblname {	color: #1e1e1c; background: #f5f5f3;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-size: 13px; border-radius: 8px;
+	font-weight: 600; padding-left: 14px; padding-top: 6px;
+	border-left: 3px solid #3fd968;
+	qproperty-alignment: 'AlignLeft';
+}
+
+QLineEdit{
+	background: #ffffff;
+	border: 1px solid #c6c6c1;
+	color: #1e1e1c;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-weight: normal; padding-left: 44px;
+	font-size: 12px; border-radius: 12px;
+}
+QLineEdit:focus{
+	border: 1px solid #3fd968;
+}
+
+QScrollBar:vertical {
+	background: #ececea;
+	border: none;
+	border-radius: 4px;
+	margin: 4px 0px 4px 0px;
+	width: 8px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background: #75756f;}
+
+QScrollBar::handle:vertical {
+	background: #dcdcd8;
+	border: none;
+	border-radius: 4px;
+	margin: 1px 0px 1px 0px;
+	min-height: 75px;
+	width: 5px;
+}
+
+
+#lstUsers QScrollBar:vertical {
+	background: #f5f5f3;
+	border: none;
+	border-radius: 3px;
+	margin: 4px 0px 4px 0px;
+	width: 7px;
+}
+
+#cmdEmoji { background: url~('/images/emojy-icon.png'); border: none;}
+#cmdEmoji:hover { background: url~('/images/emojy-icon-hover.png');}
+#cmdEmoji:pressed { background: url~('/images/emojy-icon-hover.png');}

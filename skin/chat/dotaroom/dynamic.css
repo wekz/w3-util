@@ -1,0 +1,162 @@
+
+QLineEdit{
+	background: #ffffff;
+	border: 1px solid #c6c6c1;
+	color: #1e1e1c;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-weight: normal; padding-left: 44px;
+	font-size: 12px; border-radius: 12px;
+}
+QLineEdit:focus{
+	border: 1px solid #3fd968;
+}
+
+#Name {	color: #1e1e1c; background: #f5f5f3;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-size: 13px; border-radius: 8px;
+	font-weight: 600; padding-left: 14px; padding-top: 6px;
+	border-left: 3px solid #3fd968;
+	qproperty-alignment: 'AlignLeft';
+}
+
+#bullets {background: transparent;}
+#bggames {background: #f5f5f3}
+
+#lstUsers{ qproperty-verticalScrollBarPolicy: 'ScrollBarAlwaysOn';
+	background: #f5f5f3; font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	alternate-background-color: transparent;
+	padding: 0px;
+	qproperty-showGrid: false;
+	margin-left: 1px;
+	border-radius: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	border-bottom: 1px solid #c6c6c1; border-top: 0px solid #c6c6c1;
+	border-left: 0px solid #c6c6c1;
+	border-right: 0px solid #c6c6c1;
+	qproperty-alignment: AlignTop;
+}
+
+#lstUsers::item{
+	border-bottom: 1px solid #d5d5d1;
+	border-left: none; qproperty-alignment: AlignTop;
+}
+
+QTableView::item:selected { border-radius: 3px;
+	background-color: rgba(63, 217, 104, 40);
+	margin-bottom: 1px;
+}
+
+
+
+#lstUsers #flag{ border-radius: 3px;
+	qproperty-alignment: AlignCenter;
+	border-top: none;
+	border-bottom: none;
+	border-left: none;
+	border-right: none;
+	user-select: none;
+}
+
+#lstUsers #name{
+	padding-left: 0px;
+	qproperty-alignment: AlignVCenter;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-weight: 600;
+	font-size: 12px;
+	color: #75756f;
+	margin-right: 2px;
+}
+#lstUsers #access,
+#lstUsers #access-dm,
+#lstUsers #access-gm,
+#lstUsers #xp {
+	font-weight: 600;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-size: 10px;
+	qproperty-alignment: AlignCenter;
+	margin: 0px; margin-top: 8px; margin-bottom: 10px;
+	border-radius: 6px;
+}
+
+#lstUsers #access{
+	background: #1e9e4e;
+	border: none;
+	color: #0d2b16;
+}
+
+#lstUsers #access-dm{
+	background: #1273c4;
+	border: none;
+	color: #0d2b16;
+}
+
+#lstUsers #access-gm{
+	background: #a87613;
+	border: none;
+	color: #0d2b16;
+}
+
+#lstUsers #xp{background: #dcdcd8;
+	color: #1e1e1c; qproperty-alignment: AlignCenter;
+	border-radius: 6px;
+	border: none;
+	margin: 4px; margin-top: 8px; margin-bottom: 10px;
+}
+
+#txtChat{ border-bottom: 1px solid #c6c6c1; border-top: 0px solid #c6c6c1;
+	background: #ececea;
+	color: #1e1e1c;
+	font-family: "JetBrains Mono", "Cascadia Mono", "Consolas";
+	font-size: 12px;
+	border-radius: 0px;
+	font-weight: normal; qproperty-verticalScrollBarPolicy: 'ScrollBarAlwaysOn';
+}
+
+
+
+QScrollBar:vertical {
+	background: #ececea;
+	border: none;
+	border-radius: 4px;
+	margin: 4px 0px 4px 0px;
+	width: 8px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background: #75756f;}
+
+QScrollBar::handle:vertical {
+	background: #dcdcd8;
+	border: none;
+	border-radius: 4px;
+	margin: 1px 0px 1px 0px;
+	min-height: 75px;
+	width: 5px;
+}
+
+
+#lstUsers QScrollBar:vertical {
+	background: #f5f5f3;
+	border: none;
+	border-radius: 3px;
+	margin: 4px 0px 4px 0px;
+	width: 7px;
+}
+
+#lstUsers QScrollBar::handle:vertical:hover {
+	background: #75756f;}
+
+#lstUsers QScrollBar::handle:vertical {
+	background: #dcdcd8;
+	border: none;
+	border-radius: 3px;
+	margin: 1px 0px 1px 0px;
+	min-height: 75px;
+	width: 5px;
+}
+
+
+#cmdEmoji { background: url~('/images/emojy-icon.png'); border: none;}
+#cmdEmoji:hover { background: url~('/images/emojy-icon-hover.png');}
+#cmdEmoji:pressed { background: url~('/images/emojy-icon-hover.png');}

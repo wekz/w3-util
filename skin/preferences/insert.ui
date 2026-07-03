@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>widget</class>
+ <widget class="QWidget" name="widget">
+<widget class="QLabel" name="SaveBg"/>
+<widget class="QLabel" name="chaticon"/>
+<widget class="QLabel" name="friendsicon"/>
+<widget class="QLabel" name="soundsicon"/>
+<widget class="QLabel" name="othericon"/>
+<widget class="QLabel" name="dotaicon"/>
+</widget>
+</ui>

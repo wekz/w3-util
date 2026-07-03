@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>widget</class>
+ <widget class="QWidget" name="widget">
+ <widget class="QWidget" name="avatarmask"/>
+ <widget class="QLabel" name="lblExpressionsDesc">
+  </widget>
+</widget>
+</ui>

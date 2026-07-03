@@ -1,0 +1,84 @@
+QWidget#containerwidget { border: 1px solid #111;
+        background: url('registerBG.png');
+
+}
+
+QCheckBox {color: transparent;}
+QCheckBox::indicator::checked {	image: url('saveOn.png');}
+QCheckBox::indicator::checked:hover { image: url('saveOnHover.png'); }
+QCheckBox::indicator::unchecked { image: url('saveOff.png');}
+QCheckBox::indicator::unchecked:hover {	image: url('saveOffHover.png'); }
+
+#lblCheckBox { font-size: 11px; }
+
+/* QLabel */
+QLabel {	color: #b4b6b9;
+	font-weight: bold;
+	font-family: Helvetica,Trebuchet MS;   
+	font-size: 11px;
+	qproperty-alignment: 'AlignLeft | AlignVCenter';
+        text-transform: uppercase;
+
+}
+
+/* QLineEdit */
+QLineEdit { padding-left: 5px;
+	background: transparent;
+	border: none;  
+	border-radius: 0px;
+	color: #c1c1c1;
+	font-family: Helvetica,Trebuchet MS; 
+	font-size: 11px;
+	line-height: 18px;
+	font-weight:normal;	
+}
+QLineEdit#txtUser:hover{ border: 1px solid transparent;
+	border-radius: 3px;}
+QLineEdit#txtPassword:hover{ border: 1px solid transparent;
+	border-radius: 3px;}
+
+QLineEdit#txtPassword, QLineEdit#txtPasswordConfirm, QLineEdit#txtPasswordOld {
+	qproperty-echoMode: 'Password';
+}
+
+#lblCheckBox {font-size: 10px;}
+
+
+/* QPushButton */
+
+QPushButton#cmdCancel{background: transparent; border:none;
+        color: #6f6fc1;
+	font-weight: bold;
+	font-family: Helvetica,Trebuchet MS;   
+	font-size: 11px;
+        text-align: left;
+        text-transform: none;
+}
+
+QPushButton{
+	border: none; border-radius: 5px;
+	background: #3fd968;
+	font-family: Helvetica,Trebuchet MS;
+	font-weight: bold;
+	color: #fff;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+
+QPushButton#cmdRegister:hover{
+	background: #2fc457;
+	color: #f5f6fb;
+}
+
+
+QPushButton#cmdRegister:pressed{
+	background: #27ad4b;
+	color: #e4e7f2;
+}
+
+QPushButton#cmdCancel:hover{ text-decoration: underline;}
+QPushButton#cmdCancel:pressed {color: #59599c;}
+
+QLineEdit#txtPass, QLineEdit#txtPass2 {
+	qproperty-echoMode: 'Password';
+}

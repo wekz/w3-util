@@ -1,0 +1,71 @@
+QWidget#containerwidget {
+        background: url~('header/box-middle.png');
+
+}
+
+/* QLabel */
+QLabel {
+	color: #eee;
+	font-weight: normal;
+	font-family: 'Calibri';
+	font-size: 11px;
+}
+
+/* QLineEdit */
+QLineEdit {
+	background: rgba(18, 18, 18);
+	border: 1px solid black;
+	border-radius: 4px;
+	font-family: 'Open Sans';
+	color: #aaa;
+	font-size: 11px;
+	qproperty-alignment: 'AlignLeft | AlignVCenter ';
+	padding-bottom: 2px;
+}
+
+QLineEdit#txtPassword, QLineEdit#txtPasswordConfirm, QLineEdit#txtPasswordOld {
+	qproperty-echoMode: 'Password';
+}
+
+
+/* QPushButton */
+QPushButton {border: none;
+	background: url('button.png');
+	font-family: 'Open Sans';
+	font-weight: 500;
+	color: #111;
+	font-size: 11px;
+	text-transform: uppercase;
+	padding-bottom: 3px;
+
+}
+
+QPushButton:hover {
+	background: url('button-h.png');
+        color: black;
+}
+
+QPushButton:pressed {	
+        background: url('button-p.png');
+        color: black;
+}
+
+
+/* QGroupBox */
+QGroupBox {font-family: 'Open Sans';
+	font-size: 11px;
+	color: #471;
+	font-weight: 700;
+        text-transform: uppercase;
+
+
+}
+
+/* QWidget - background widgets */
+#HeaderName { background: rgb(30, 30, 30);
+        border: 1px solid black;
+}
+
+
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>widget</class>
+ <widget class="QWidget" name="widget">
+ <widget class="QWidget" name="mapIcon"/>
+ <widget class="QLabel" name="lblmatchfound">
+   <property name="text">
+    <string>Match Found</string>
+   </property>
+  </widget>
+<widget class="QLabel" name="lblmap">
+   <property name="text">
+    <string>Map /</string>
+   </property>
+  </widget>
+ </widget>
+</ui>

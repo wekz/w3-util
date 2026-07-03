@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+
+	<class>widget</class>
+	<widget class="QWidget" name="widget">
+		<widget class="QLabel" name="separator"/>
+		<widget class="QLabel" name="separator2"/>
+		<widget class="QLabel" name="separator3"/>
+
+ 	</widget>
+
+</ui>

@@ -1,0 +1,38 @@
+#containerwidget{background: transparent;
+	border-bottom: 1px solid #d5d5d1;
+	border-radius: 0px;
+	margin-top: 0px;
+	margin-left: 5px;
+}
+
+#AvatarMask{ background: url('avatarmask.png') top left no-repeat;}
+
+QLabel#lblAvatar{background: url('main_no_avatar.png') top left no-repeat;
+	border: none;
+}
+
+
+QLabel#lblName{
+	background: transparent;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 11px;
+	font-weight: bold;
+	color: #1e1e1c;
+}
+
+QLabel#lblStatus{
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	color: #75756f !important;
+	font-style: normal;
+}
+
+QLabel#lblDescription{font-size: 10px; padding-left: 5px;
+	background: #ffffff;
+	border: 1px solid #dcdcd8;
+	color: #50504b;
+	font-family: "Segoe UI", "Inter", "Arial";
+	border-radius: 4px;
+	font-weight: normal;
+	line-height: 12px;
+}

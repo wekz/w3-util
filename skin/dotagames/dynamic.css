@@ -1,0 +1,223 @@
+/* QGroupBox */
+QGroupBox {text-transform: uppercase;
+	color: #1e1e1c;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 11px;
+	font-weight: 600;
+	qproperty-alignment: 'AlignLeft';
+}
+
+/* QLCDNumber */
+QLCDNumber#lcdGames {
+	background: transparent;
+	border: none;
+	color: #1e1e1c;
+	qproperty-segmentStyle: 'Flat';
+}
+
+#Signbg { background: #f5f5f3; }
+
+#openGamesHeader { background: url('opengames.png'); }
+
+#openGamesBody { background: url('body-element.png'); }
+
+#startGamesHeader { background: url('startedgames-head.png'); }
+
+#startGamesBody { background: url('body-element.png'); }
+
+QListWidget{
+	background-color: transparent;
+}
+
+QListWidget#lstGames,
+QListWidget#lstOpenGames {
+	font-family: "Segoe UI", "Inter", "Arial";
+	background: transparent;
+	border: none;
+	color: #1e1e1c;
+	font-weight: normal;
+	font-size: 11px;
+	border-radius: 4px;
+}
+
+QListWidget#lstGames::item,
+QListWidget#lstOpenGames::item {
+	border: 0px;
+	height: 17px;
+	margin: 0px;
+	font-weight: normal;
+	padding-left: 4px;
+}
+
+QListWidget#lstGames::item:hover,
+QListWidget#lstOpenGames::item:hover{
+	background: rgba(30,30,28,12);
+	border-radius: 3px;
+	color: #1e1e1c;
+	margin-left: 3px;
+	margin-right: 2px;
+	padding-left: 1px;
+}
+
+QListWidget#lstGames::item:selected:active,
+QListWidget#lstGames::item:selected:!active,
+QListWidget#lstOpenGames::item:selected:active,
+QListWidget#lstOpenGames::item:selected:!active{
+	background: rgba(63, 217, 104, 50);
+	border-radius: 3px;
+	color: #1e1e1c;
+	margin-right: 2px;
+	margin-left: 3px;
+	padding-left: 1px;
+}
+
+
+
+QListWidget#lstSigned{
+	font-family: "Segoe UI", "Inter", "Arial";
+	background: transparent;
+	border: none;
+	color: #1e1e1c;
+	font-weight: normal;
+	font-size: 11px;
+	border-radius: 4px;
+}
+
+QListWidget#lstSigned::item {
+	border: 0px;
+	font-weight: 600;
+	height: 16px;
+	margin: 0px;
+	padding-left: 4px;
+}
+
+QListWidget#lstSigned::item:hover {
+	background: rgba(30,30,28,12);
+	color: #1e1e1c;
+}
+
+QListWidget#lstSigned::item:selected:active,
+QListWidget#lstSigned::item:selected:!active{
+	background: rgba(63, 217, 104, 50);
+	color: #1e1e1c;
+}
+
+
+/* QComboBox */
+QComboBox#Modes {padding-top: 1px;
+	background: #ffffff;
+	border-radius: 10px;
+	border: 1px solid #dcdcd8;
+	color: #1e1e1c;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	padding-left: 15px;
+	background-attachment: fixed;
+	background-position: left;
+}
+QComboBox#Modes:hover {
+	background: #dcdcd8; border: 1px solid #3fd968;
+}
+
+QComboBox#Modes:down-arrow{
+	image: url('open1.png'); padding-right: 10px;
+}
+
+QComboBox#Modes QAbstractItemView{ background: #f5f5f3;
+	border: 1px solid #c6c6c1;
+	border-radius: 0px;
+	color: #1e1e1c; padding: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 12px; font-weight: 600;
+	text-transform: Capitalize;
+	qproperty-alignment: 'AlignCenter';
+	selection-background-color: #3fd968;
+	selection-color: #0d2b16;
+}
+
+
+
+
+/* QPushButton */
+QPushButton#cmdSign {
+	background: #3fd968;
+	border-radius: 10px;
+	border: none;
+	color: #0d2b16;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	text-align: center;
+	padding-top: 1px;
+}
+
+QPushButton#cmdSign:hover{ background: #2fc457;
+	border: none;
+}
+
+QPushButton#cmdSign:pressed {background: #27ad4b;
+	border: none;
+	padding-bottom: 0px;
+}
+
+
+QScrollBar:vertical {
+	background: transparent;
+	border: none;
+	border-radius: 0px;
+	margin: 1px 0px 0px 0px;
+	padding-right: 2px;
+	width: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background: #75756f;}
+
+QScrollBar::handle:vertical {
+	background: #dcdcd8;
+	border: none;
+	border-radius: 2px;
+	margin: 1px 0px 1px 0px;
+	min-height: 25px;
+	width: 6px;
+}
+#lstOpenGames QScrollBar::handle:vertical {
+	margin-bottom: 0px;
+	margin-top: 0px;
+	min-height: 25px;
+}
+
+QScrollBar::add-line:vertical {
+	background-image: none;
+	border: none;
+}
+
+QScrollBar::add-line:vertical:hover {
+	background: transparent;
+}
+
+QScrollBar::sub-line:vertical {
+	background-image: none;
+	border: none;
+}
+
+QScrollBar::sub-line:vertical:hover {
+	background: none;
+}
+
+QScrollBar::up-arrow:vertical {
+	background: transparent;
+	border: none;
+	image: none;
+}
+
+QScrollBar::down-arrow:vertical {
+	background: transparent;
+	border: none;
+	image: none;
+}

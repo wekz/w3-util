@@ -1,0 +1,213 @@
+QWidget#containerwidget {border: 1px solid #c6c6c1;
+	background: url('settingsbg.png') left no-repeat;
+}
+
+/* QComboBox */
+QComboBox{
+	background: #ffffff;
+	border: 1px solid #c6c6c1;
+	color: #1e1e1c;
+	border-radius: 4px;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	font-weight: 600;
+	text-transform: none;
+	padding-left: 6px;
+}
+
+QComboBox::down-arrow { background: url('open1.png') center no-repeat;
+	border: none;
+	border-radius: 0px;
+	image: none;
+	margin-top: 0px;
+}
+
+QComboBox::down-arrow:hover{
+	image: url('open1.png');
+}
+
+QComboBox QAbstractItemView{ background: #ffffff;
+    border: 1px solid #c6c6c1;
+    border-radius: 0px;
+    color: #1e1e1c;   padding: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+    font-family: "Segoe UI", "Inter", "Arial";
+    font-size: 10px; font-weight: 600;
+    text-transform: Capitalize;
+    qproperty-alignment: 'AlignCenter';
+	selection-background-color: #3fd968;
+	selection-color: #0d2b16;
+}
+
+QComboBox:hover {
+	border: 1px solid #a9a9a4;
+}
+
+/* QGroupBox */
+QGroupBox {
+	border: none;
+	color: #27ad4b;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+QLabel{
+	font-size: 10px;
+	font-family: "Segoe UI", "Inter", "Arial";
+	color: #1e1e1c;
+	font-weight: normal;
+}
+
+#lblHighlight_Online, #lblHighlight_Ingame, #lblHighlight_Away
+{
+	qproperty-alignment: 'AlignLeft | AlignVCenter ';
+}
+
+#gCustomChannels, #gTimestamps, #lblMaxLines, #lblSettings,
+#gFriendslist, #gIgnoreList,
+#gSounds, #gHighlight, #gAliases,
+#lblMainWindowButtons, #lblClientLog, #lblCustomization, #lblMapDownloader{
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 11px;
+	color: #27ad4b;
+	font-weight: 700; text-transform: uppercase;
+}
+
+#lblHighlight{
+	qproperty-wordWrap: true;
+}
+
+#chaticon { background: url('chat.png');}
+#friendsicon { background: url('friends.png');}
+#soundsicon { background: url('sounds.png');}
+#othericon { background: url('other.png');}
+#dotaicon { background: url('dota.png');}
+
+
+
+/* QLineEdit */
+QLineEdit {
+	background: #ffffff;
+	border: 1px solid #c6c6c1;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-size: 10px;
+	border-radius: 4px;
+	color: #1e1e1c;
+	padding-left: 6px;
+	qproperty-textInteractionFlags: 'TextEditorInteraction';
+}
+QLineEdit:focus { border: 1px solid #3fd968; }
+
+/* QTextEdit */
+QTextEdit {
+	background: #ffffff;
+	border: 1px solid #c6c6c1; padding-left: 5px;
+	border-radius: 4px;
+	color: #1e1e1c;
+	font-size: 10px; font-weight: normal;
+	font-family: "Segoe UI", "Inter", "Arial";
+}
+
+
+/* QTabBar */
+QTabBar::tab { 	qproperty-alignment: AlignRight;
+	background: transparent; border: none; border-radius: 4px;
+	color: #a8a8a2; text-align: left; padding-left: 50px;
+	font-family: "Segoe UI", "Inter", "Arial";
+	text-transform: uppercase;
+	font-size: 10px;
+	font-weight: 600;
+	height: 26px; margin-right: 1px;
+	width: 86px;
+	qproperty-verticalScrollBarPolicy: 'ScrollBarAlwaysOff';
+	qproperty-horizontalScrollBarPolicy: 'ScrollBarAlwaysOff';
+}
+
+QTabBar::tab:selected {
+	background: #3fd968;
+	color: #0d2b16;
+}
+
+QTabBar::tab:!selected:hover {
+	background: #33333a;
+	color: #ffffff;
+}
+
+QTabBar::tab:selected:hover {
+	color: #0d2b16;
+}
+
+/* QTabWidget */
+QTabWidget:pane {
+	background: transparent;
+	border: none;
+}
+
+QPushButton{
+	border: none; border-radius: 8px;
+	background: #3fd968;
+	font-family: "Segoe UI", "Inter", "Arial";
+	font-weight: 700;
+	color: #0d2b16;
+	font-size: 11px;
+	text-transform: uppercase;
+}
+
+QPushButton:hover{
+	background: #2fc457;
+	color: #0d2b16;
+}
+
+
+QPushButton:pressed{
+	background: #27ad4b;
+	color: #0d2b16;
+}
+
+
+
+
+QCheckBox{
+	font-size: 10px;
+	font-family: "Segoe UI", "Inter", "Arial";
+	color: #1e1e1c;
+}
+
+QCheckBox::unchecked{
+	color: #75756f;
+	text-decoration: line-through;
+}
+
+QCheckBox::indicator{
+	margin-top: 3px;
+}
+
+
+QScrollBar:vertical {
+	background: transparent;
+	border-radius: 2px;
+	border: none;
+	width: 5px; margin-left: 1px;
+	margin: 0px 0px 2px 0px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background: #a9a9a4}
+
+QScrollBar::handle:vertical {
+	background: #c9c9c4;
+	border: none;
+	margin: 3px 0px 3px 0px;
+	width: 4px;
+	min-height: 60px;
+	border-radius: 2px;
+}
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical {
+  width: 0px;
+  height: 0px;
+}

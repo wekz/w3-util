@@ -1,0 +1,6 @@
+QWidget#containerwidget{ background-color: #26272b; border: none; border-radius: 4px;}
+
+QPushButton { border: 1px solid #26272b; }
+
+QPushButton:hover {  border: 1px solid #3fd968;
+                     border-radius: 3px;}

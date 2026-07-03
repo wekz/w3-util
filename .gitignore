@@ -1,0 +1,11 @@
+# build artifacts
+Wekzy.exe
+WekzySetup.exe
+*.obj
+*.pdb
+
+# local/machine-specific state (do not share)
+settings.ini
+sign-offset.txt
+watcher.log
+setup.log

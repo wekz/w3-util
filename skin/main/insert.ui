@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+
+<class>widget</class>
+ <widget class="QWidget" name="widget">
+ <widget class="QLabel" name="PageTop"/>
+ <widget class="QWidget" name="MenuLine"/>
+ <widget class="QWidget" name="MenuLine2"/>
+ <widget class="QWidget" name="MenuLine3"/>
+ <widget class="QWidget" name="MenuLine4"/>
+ <widget class="QLabel" name="ChannelsTop"/>
+ <widget class="QLabel" name="Line"/>
+ <widget class="QLabel" name="ProfileHeader"/>
+ <widget class="QLabel" name="Rooms"/>
+ <widget class="QLabel" name="menubg"/>
+ <widget class="QLabel" name="topline"/>
+ <widget class="QLabel" name="rgc"/>
+ </widget>
+</ui>

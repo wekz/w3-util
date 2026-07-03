@@ -1,0 +1,30 @@
+QWidget#containerwidget {
+	background: #37393f;
+}
+
+
+QPushButton{
+	border: none; border-radius: 5px;
+	background: #42454d;
+	font-family: Helvetica,Trebuchet MS;
+	font-weight: bold;
+	color: #fff;
+	font-size: 10px;
+	text-transform: uppercase;
+}
+
+QPushButton:hover{
+	background: #6262ac;
+	color: #f5f6fb;
+}
+
+
+QPushButton:pressed{
+	background: #4b4e57;
+	color: #e4e7f2;
+}
+
+QCheckBox::indicator::checked {	image: url('saveOn.png');}
+QCheckBox::indicator::checked:hover { image: url('saveOnHover.png'); }
+QCheckBox::indicator::unchecked { image: url('saveOff.png');}
+QCheckBox::indicator::unchecked:hover {	image: url('saveOffHover.png'); }

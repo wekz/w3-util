@@ -1,0 +1,182 @@
+QWidget#containerwidget {
+        background: url('Profile BG.png'); outline: none;
+}
+	
+/* QLabel */
+QLabel {
+	font-weight: bold;
+	font-family: 'Trebuchet MS';
+	font-size: 10px;
+	color: #c6c6c6;
+	text-transform: capitalize;
+
+}
+
+#lblFlag{ background: url('flag.png') center no-repeat; text-align: Center; qproperty-alignment: 'AlignCenter';}
+
+
+#lblGames { color: #dbdbdb; 
+	font-weight: Bold;  qproperty-alignment: 'AlignVCenter | AlignRight';
+	font-family: 'Calibri';
+	font-size: 10px;
+}
+
+#txtRgid { color: #dbdbdb; 
+	font-weight: Bold;
+	font-family: 'Calibri';
+	font-size: 10px;
+        qproperty-textInteractionFlags: 'TextSelectableByMouse';
+}
+
+#lblAccount, #lblDescription_desc, #lblExpressionsDesc {
+	color: #cfd2d6;
+	font-family: Helvetica,arial;
+	font-size: 10px;
+	font-weight: bold;
+	text-transform: uppercase;
+
+}
+
+
+#lblExpressionsDesc, #lblAccount, #lblDescription_desc {qproperty-alignment: 'AlignLeft';
+}
+
+#lblDescription { font-size: 10px;
+	background: transparent;
+	color: #3c3c38;
+	font-family: Helvetica,Trebuchet MS;
+        border-radius: 0px;
+        font-weight: normal;
+	qproperty-textInteractionFlags: 'TextSelectableByMouse';
+	qproperty-wordWrap: true;
+
+}
+
+
+
+
+#lblTitle, #lblTitle2{
+	font-family: Calibri,Helvetica,arial;
+	font-weight: bold;
+	qproperty-alignment: 'AlignCenter';
+}
+
+
+
+ 
+#lblName {
+	color: rgb(240,240,240);
+	font-family: Myriad Pro,calibri,Helvetica, arial;
+	font-size: 12px;
+	font-weight: bold;
+	qproperty-alignment: 'AlignCenter';
+}
+
+/* QTableView */
+QTableView {
+	qproperty-verticalScrollBarPolicy: 'ScrollBarAlwaysOn';
+	qproperty-horizontalScrollBarPolicy: 'ScrollBarAlwaysOff';
+	qproperty-editTriggers: 'NoEditTriggers';
+	qproperty-selectionMode: 'SingleSelection';
+	qproperty-selectionBehavior: 'SelectRows';
+}
+
+/* QTableView */
+QTableView:pressed {outline: none;}
+
+QTableView {background: transparent; 
+	border: none;
+	border-radius: none;
+	color: #3c3c38;
+	font-family: Helvetica,Trebuchet MS;
+	font-size: 10px;
+	gridline-color: transparent;
+	outline: none;
+	qproperty-alternatingRowColors: false;
+	qproperty-editTriggers: 'NoEditTriggers';
+        alternate-background-color: none;
+        qproperty-showGrid: false;
+	font-weight: normal;
+
+}
+
+QHeaderView::section {
+	background: transparent;
+	border: none;
+	color: #7073b6;
+	font-weight: bold;
+	outline: none;
+	padding: 6px;
+
+}
+QHeaderView {
+	background-color: transparent;
+	border: none;
+}
+QTableView QTableCornerButton::section {
+	background: transparent;
+	border:none;
+	border-radius: 0px;
+}
+
+QTableView::item:selected { 
+	background-color: #dcdcd8; margin-right: 2px;
+	border-radius: 3px;
+}
+
+#avatarmask { background: url('avatarmask.png');}
+
+
+
+QProgressBar { border: 0px solid #232529;
+	background: #3e4145; border-radius: 5px;
+	color: transparent;
+	font-size: 0px;
+
+}
+
+QProgressBar::chunk {border-top: 1px solid #818c99;
+	background: #737f8d;
+	border-radius: 5px;
+	border-bottom: 0px solid #34314b;
+	color: #fff;
+	padding: 4px 10px;
+}
+
+QLabel#RemainingXP{
+	color: #ccc;
+	font-family: Calibri, Verdana;
+	font-size: 10px;
+	qproperty-alignment: AlignCenter;
+	text-align: center;
+}
+
+QScrollBar:vertical { 
+	background: #ececea;
+        border: 0px solid #181818;
+        border-left: 0px solid transparent;
+	border-radius: 4px;
+	border-right: 0px solid black;
+	margin: 0px; 
+        margin-right: 0px;
+	width: 8px; margin-top: 4px; margin-bottom: 4px;
+}
+
+QScrollBar::handle:vertical:hover { 
+	background: #e9e9e6;}
+
+QScrollBar::handle:vertical { 
+	background: #e9e9e6;
+	border: none;
+	border-radius: 4px;
+	margin: 0px;
+        margin-bottom: 1px;
+	margin-top: 1px;
+	min-height: 75px;
+	width: 5px;
+
+}
+
+
+QTableView QScrollBar:vertical { 
+	background: #2a2e33;}

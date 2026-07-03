@@ -1,0 +1,120 @@
+QWidget#containerwidget {background: url~('header/box-middle.png');
+
+}
+
+#ShadowBot{ background: url('ShadowBot');}
+#ShadowTop{ background: url('ShadowTop2');}
+#ShadowLeft{ background: url('ShadowLeft');}
+#ShadowRight{ background: url('ShadowRight');}
+#bg{ background-color: rgb(30, 30, 30);
+     margin: 10px;
+     border: 1px solid rgb(50,50,50);
+}
+
+/* QTableView */
+QTableView {background: rgba(18, 18, 18);
+	border-top: 0px solid rgb(0, 0, 0);
+	border-bottom: 0px solid rgb(0, 0, 0);
+	border-left: 0px solid #000;
+	border-right: 0px solid #000;
+	border-radius: 2px;
+	color: #aaa;
+	font-family: 'Open Sans';
+	font-size: 10px;
+	gridline-color: transparent;
+	outline: none;
+	qproperty-alternatingRowColors: true;
+	qproperty-editTriggers: 'NoEditTriggers';
+        alternate-background-color: rgba(15, 15, 15);
+        qproperty-showGrid: false;
+	font-weight: normal;
+
+}
+
+QHeaderView::section {
+	background: rgb(15,15,15);
+	border:none;
+	color: #F6EAAB;
+	font-weight: bold;
+	outline: none;
+	padding: 6px;
+
+}
+QHeaderView {
+	background-color: rgb(15,15,15);
+	border-right: transparent;
+}
+QTableView QTableCornerButton::section {
+	background: rgb(15,15,15);
+	border:none;
+	border-radius: 2px;
+}
+
+QTableView::item:selected { 
+	background-color: #173039;
+	border-radius: 3px;
+}
+QScrollBar:vertical {
+	background: transparent;
+        border: 0px solid #181818;
+        border-left: 0px solid transparent;
+	border-radius: 0px;
+	border-right: 0px solid black;
+	margin: 0px; padding-right: 0px;
+        margin-right: 0px;
+	width: 7px; margin-top: 1px;
+}
+
+QScrollBar::handle:vertical:hover {
+	background:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,
+		stop:0 #697aa3,
+		stop:1 #000);}
+
+QScrollBar::handle:vertical {
+	background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0,
+		stop:0 #5d6c90,
+		stop:1 #000);
+	border: none;
+	border-radius: 2px;
+	margin: 0px;
+        margin-bottom: 1px;
+	margin-top: 1px;
+	min-height: 50px;
+	width: 6px;
+}
+
+QScrollBar::add-line:vertical { 
+	background-image: none;
+	border: none;
+}
+
+QScrollBar::add-line:vertical:hover {
+	background: transparent;
+}
+
+QScrollBar::sub-line:vertical { 
+	background-image: none;
+	border: none;
+}
+
+QScrollBar::sub-line:vertical:hover {
+	background: none;
+}
+
+QScrollBar::up-arrow:vertical {
+	background: transparent;
+	border: none;
+	image: none;
+}
+
+QScrollBar::down-arrow:vertical {
+	background: transparent;
+	border: none;
+	image: none;
+}
+
+QTableView{border-top: 2px solid rgb(0, 0, 0);
+	border-bottom: 2px solid rgb(0, 0, 0);
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
+	border-radius: 3px;}

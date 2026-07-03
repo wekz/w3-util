@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>widget</class>
+ <widget class="QWidget" name="widget">
+ <widget class="QLabel" name="lblRememberMe">
+   <property name="text">
+    <string>Remember me</string>
+   </property>
+  </widget>
+ <widget class="QLabel" name="lblnew">
+   <property name="text">
+    <string>Are you new?</string>
+   </property>
+  </widget>
+</widget>
+</ui>
