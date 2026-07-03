@@ -223,79 +223,85 @@ static class Program {
         } catch (Exception ex) { Log("w3 background error: " + ex.Message); }
     }
 
-    // ---------- Custom hotkeys (config.dota.ini) ----------
+    // ---------- config.dota.ini: generic multi-section read/write ----------
+    // keys are stored as "[SECTION]|KeyName" so hotkeys and on/off toggles
+    // (which live in different ini sections) can be edited and saved together
     static string GetDotaIniPath() {
         return Path.Combine(GetW3Dir(), "config.dota.ini");
     }
 
-    static Dictionary<string, string> LoadHotkeys() {
+    static Dictionary<string, string> LoadIniAll() {
         var dict = new Dictionary<string, string>();
         string path = GetDotaIniPath();
         if (!File.Exists(path)) return dict;
-        bool inHotkeys = false;
+        string section = "";
         foreach (var raw in File.ReadAllLines(path)) {
             string line = raw.Trim();
-            if (line.StartsWith("[") && line.EndsWith("]")) {
-                inHotkeys = string.Equals(line, "[HOTKEYS]", StringComparison.OrdinalIgnoreCase);
-                continue;
-            }
-            if (!inHotkeys || line.Length == 0 || line.StartsWith(";")) continue;
+            if (line.StartsWith("[") && line.EndsWith("]")) { section = line; continue; }
+            if (line.Length == 0 || line.StartsWith(";")) continue;
             int eq = line.IndexOf('=');
             if (eq < 1) continue;
-            dict[line.Substring(0, eq).Trim()] = line.Substring(eq + 1).Trim();
+            dict[section + "|" + line.Substring(0, eq).Trim()] = line.Substring(eq + 1).Trim();
         }
         return dict;
     }
 
-    static void SaveHotkeys(Dictionary<string, string> newValues) {
+    static void SaveIniValues(Dictionary<string, string> newValues) {
         string path = GetDotaIniPath();
-        List<string> lines;
-        if (File.Exists(path)) lines = new List<string>(File.ReadAllLines(path));
-        else lines = new List<string> { "[HOTKEYS]" };
+        List<string> lines = File.Exists(path) ? new List<string>(File.ReadAllLines(path)) : new List<string>();
 
         var remaining = new Dictionary<string, string>(newValues);
-        bool inHotkeys = false;
-        int sectionEnd = -1;
+        string section = "";
+        var sectionEndIndex = new Dictionary<string, int>();
 
         for (int i = 0; i < lines.Count; i++) {
             string trimmed = lines[i].Trim();
             if (trimmed.StartsWith("[") && trimmed.EndsWith("]")) {
-                if (inHotkeys) { sectionEnd = i; break; }
-                inHotkeys = string.Equals(trimmed, "[HOTKEYS]", StringComparison.OrdinalIgnoreCase);
+                if (section != "" && !sectionEndIndex.ContainsKey(section)) sectionEndIndex[section] = i;
+                section = trimmed;
                 continue;
             }
-            if (!inHotkeys) continue;
             int eq = trimmed.IndexOf('=');
             if (eq < 1) continue;
             string key = trimmed.Substring(0, eq).Trim();
-            if (remaining.ContainsKey(key)) {
-                lines[i] = key + " = " + remaining[key];
-                remaining.Remove(key);
+            string fullKey = section + "|" + key;
+            if (remaining.ContainsKey(fullKey)) {
+                lines[i] = key + " = " + remaining[fullKey];
+                remaining.Remove(fullKey);
             }
         }
-        if (inHotkeys && sectionEnd < 0) sectionEnd = lines.Count;
+        if (section != "" && !sectionEndIndex.ContainsKey(section)) sectionEndIndex[section] = lines.Count;
 
         if (remaining.Count > 0) {
-            if (sectionEnd < 0) {
-                lines.Add("[HOTKEYS]");
-                sectionEnd = lines.Count;
+            var bySection = new Dictionary<string, List<string>>();
+            foreach (var kv in remaining) {
+                int bar = kv.Key.IndexOf('|');
+                string sec = kv.Key.Substring(0, bar);
+                string key = kv.Key.Substring(bar + 1);
+                if (!bySection.ContainsKey(sec)) bySection[sec] = new List<string>();
+                bySection[sec].Add(key + " = " + kv.Value);
             }
-            var toInsert = new List<string>();
-            foreach (var kv in remaining) toInsert.Add(kv.Key + " = " + kv.Value);
-            lines.InsertRange(sectionEnd, toInsert);
+            var order = new List<KeyValuePair<string, int>>();
+            foreach (var sec in bySection.Keys)
+                order.Add(new KeyValuePair<string, int>(sec, sectionEndIndex.ContainsKey(sec) ? sectionEndIndex[sec] : -1));
+            order.Sort(delegate(KeyValuePair<string, int> a, KeyValuePair<string, int> b) { return b.Value.CompareTo(a.Value); });
+            foreach (var kv in order) {
+                if (kv.Value >= 0) lines.InsertRange(kv.Value, bySection[kv.Key]);
+                else { lines.Add(kv.Key); lines.AddRange(bySection[kv.Key]); }
+            }
         }
 
         File.WriteAllLines(path, lines.ToArray());
     }
 
     static void OpenHotkeysEditor() {
-        var current = LoadHotkeys();
+        var current = LoadIniAll();
         var f = new HotkeysForm(current);
         f.Icon = trayIcon.Icon;
         if (f.ShowDialog() == DialogResult.OK) {
             try {
-                SaveHotkeys(f.GetResult());
-                Log("hotkeys saved to " + GetDotaIniPath());
+                SaveIniValues(f.GetResult());
+                Log("hotkeys/options saved to " + GetDotaIniPath());
                 if (optBalloon) trayIcon.ShowBalloonTip(4000, "Custom hotkeys",
                     "Saved. Reopen the in-game settings menu (or restart the game) to apply.", ToolTipIcon.Info);
             } catch (Exception ex) {
@@ -343,9 +349,16 @@ static class Program {
         var mScore = Regex.Match(block, @"#37a;.*?Roboto Condensed.*?bold;.*?>(\d+)<", RegexOptions.Singleline);
         if (mScore.Success) s.Score = mScore.Groups[1].Value;
 
+        var mReli = Regex.Match(block, @"(\d+)%\s*reliability");
+        if (mReli.Success) s.Reliability = mReli.Groups[1].Value;
+
         int w, l;
         if (int.TryParse(s.Wins, out w) && int.TryParse(s.Losses, out l) && (w + l) > 0)
             s.WinPct = ((int)Math.Round(100.0 * w / (w + l))).ToString();
+
+        int k, d, a;
+        if (int.TryParse(s.Kills, out k) && int.TryParse(s.Deaths, out d) && int.TryParse(s.Assists, out a))
+            s.KdaRatio = ((k + a) / (double)Math.Max(1, d)).ToString("0.00");
 
         return s;
     }
@@ -633,7 +646,8 @@ class SettingsForm : Form {
 // ---------- RGC stats: podaci + popup ----------
 class RgcStats {
     public string Uid = "", Rank = "?", Name = "", Wins = "?", Losses = "?", WinPct = "?",
-                  Games = "?", Kills = "?", Deaths = "?", Assists = "?", Score = "?";
+                  Games = "?", Kills = "?", Deaths = "?", Assists = "?", Score = "?",
+                  Reliability = "?", KdaRatio = "?";
 }
 
 class StatsForm : Form {
@@ -700,7 +714,7 @@ class StatsForm : Form {
         lblAssistsVal = AddTile("ASSISTS", 206);
 
         lblScore = new Label();
-        lblScore.Font = new Font("JetBrains Mono", 12f, FontStyle.Bold);
+        lblScore.Font = new Font("JetBrains Mono", 10.5f, FontStyle.Bold);
         lblScore.ForeColor = Color.FromArgb(39, 173, 75);
         lblScore.SetBounds(20, 172, 280, 26);
         Add(lblScore);
@@ -780,7 +794,8 @@ class StatsForm : Form {
         lblDeathsVal.Text = s.Deaths;
         lblAssistsVal.Text = s.Assists;
 
-        lblScore.Text = "SCORE  " + s.Score;
+        lblScore.Text = "SCORE  " + s.Score + "    KDA  " + s.KdaRatio +
+            (s.Reliability != "?" ? "    " + s.Reliability + "%R" : "");
 
         profileUrl = "https://ladder.rankedgaming.com/achievements.php?uid=" + s.Uid + "&room=" + room;
 
@@ -789,45 +804,59 @@ class StatsForm : Form {
     }
 }
 
-// ---------- Custom hotkeys: Dota-2-stil grid editor ----------
+// ---------- Custom hotkeys: Dota-stil grid editor + on/off options ----------
 class BindInfo {
-    public string IniKey;
+    public string IniKey;   // "[SECTION]|KeyName"
     public string Token = "";
 }
 
 class HotkeysForm : Form {
-    Panel scroll;
+    static readonly Color BG        = Color.FromArgb(23, 20, 16);
+    static readonly Color PANEL_BG  = Color.FromArgb(23, 20, 16);
+    static readonly Color TILE_BG   = Color.FromArgb(15, 13, 10);
+    static readonly Color GOLD      = Color.FromArgb(224, 188, 118);
+    static readonly Color GOLD_DIM  = Color.FromArgb(120, 102, 66);
+    static readonly Color GOLD_BORDER = Color.FromArgb(140, 111, 60);
+    static readonly Color GREEN     = Color.FromArgb(90, 230, 150);
+    static readonly Color GREEN_BORDER = Color.FromArgb(63, 217, 104);
+    static readonly Color TEXT_DIM  = Color.FromArgb(150, 150, 145);
+    static readonly Color TEXT      = Color.FromArgb(215, 215, 210);
+    static readonly Color ARMED_BG  = Color.FromArgb(40, 70, 45);
+
+    Panel hotkeysPanel, optionsPanel;
+    Label tabHotkeys, tabOptions;
     List<Button> bindButtons = new List<Button>();
+    List<CheckBox> checkBoxes = new List<CheckBox>();
     Button armedButton = null;
 
-    static readonly string[,] ITEMS = {
-        {"ItemSlot1","Item 1"}, {"ItemSlot2","Item 2"},
-        {"ItemSlot3","Item 3"}, {"ItemSlot4","Item 4"},
-        {"ItemSlot5","Item 5"}, {"ItemSlot6","Item 6"}
+    // ----- [HOTKEYS] fields (bare key names, "[HOTKEYS]|" prefix added when built) -----
+    static readonly string[][] ITEMS = {
+        new[]{"ItemSlot1","Item 1"}, new[]{"ItemSlot2","Item 2"},
+        new[]{"ItemSlot3","Item 3"}, new[]{"ItemSlot4","Item 4"},
+        new[]{"ItemSlot5","Item 5"}, new[]{"ItemSlot6","Item 6"}
     };
-    static readonly string[,] ABILITIES = {
-        {"SkillSlot1","Ability Q"}, {"SkillSlot2","Ability W"},
-        {"SkillSlot3","Ability E"}, {"SkillSlot4","Ability R"},
-        {"SkillSlot5","Ability 5"}, {"SkillSlot6","Ability 6 / Ult"}
+    static readonly string[][] ABILITIES = {
+        new[]{"SkillSlot1","Q"}, new[]{"SkillSlot2","W"}, new[]{"SkillSlot3","E"}, new[]{"SkillSlot4","R"},
+        new[]{"SkillSlot5","Slot 5"}, null, null, new[]{"SkillSlot6","Ult / 6"}
     };
-    static readonly string[,] AUTOCAST = {
-        {"ASkillSlot1","Autocast Q"}, {"ASkillSlot2","Autocast W"},
-        {"ASkillSlot3","Autocast E"}, {"ASkillSlot4","Autocast R"},
-        {"ASkillSlot5","Autocast 5"}, {"ASkillSlot6","Autocast 6"}
+    static readonly string[][] AUTOCAST = {
+        new[]{"ASkillSlot1","Auto Q"}, new[]{"ASkillSlot2","Auto W"}, new[]{"ASkillSlot3","Auto E"}, new[]{"ASkillSlot4","Auto R"},
+        new[]{"ASkillSlot5","Auto 5"}, null, null, new[]{"ASkillSlot6","Auto 6"}
     };
-    static readonly string[,] QUICKCAST = {
-        {"QuickCastSlot1","QC Ability Q"}, {"QuickCastSlot2","QC Ability W"},
-        {"QuickCastSlot3","QC Ability E"}, {"QuickCastSlot4","QC Ability R"},
-        {"QuickCastSlot5","QC Ability 5"}, {"QuickCastSlot6","QC Ability 6"}
+    static readonly string[][] QUICKCAST_ABILITY = {
+        new[]{"QuickCastSlot1","QC Q"}, new[]{"QuickCastSlot2","QC W"}, new[]{"QuickCastSlot3","QC E"}, new[]{"QuickCastSlot4","QC R"},
+        new[]{"QuickCastSlot5","QC 5"}, null, null, new[]{"QuickCastSlot6","QC 6"}
     };
-    static readonly string[,] QUICKCASTITEM = {
-        {"QuickCastInventorySlot1","QC Item 1"}, {"QuickCastInventorySlot2","QC Item 2"},
-        {"QuickCastInventorySlot3","QC Item 3"}, {"QuickCastInventorySlot4","QC Item 4"},
-        {"QuickCastInventorySlot5","QC Item 5"}, {"QuickCastInventorySlot6","QC Item 6"}
+    static readonly string[][] QUICKCAST_ITEM = {
+        new[]{"QuickCastInventorySlot1","QC Item1"}, new[]{"QuickCastInventorySlot2","QC Item2"},
+        new[]{"QuickCastInventorySlot3","QC Item3"}, new[]{"QuickCastInventorySlot4","QC Item4"},
+        new[]{"QuickCastInventorySlot5","QC Item5"}, new[]{"QuickCastInventorySlot6","QC Item6"}
     };
     static readonly string[,] UNITACTIONS = {
         {"BindMove","Move"}, {"BindStop","Stop"}, {"BindHold","Hold Position"},
-        {"BindPatrol","Patrol"}, {"BindAttack","Attack"}, {"BindOpenHeroSkills","Open Hero Skills"}
+        {"BindPatrol","Patrol"}, {"BindAttack","Attack"}, {"BindOpenHeroSkills","Open Hero Skills"},
+        {"TalentsMenuHotkey","Open Talents Menu"}, {"TeleportScrollHotkey","Use Teleport Scroll"},
+        {"QuickCastAttack","Quick Attack (needs -aat)"}
     };
     static readonly string[,] SELECTION = {
         {"SelectYourHero","Select Main Hero"}, {"SelectAllUnits","Select All Units"},
@@ -843,48 +872,128 @@ class HotkeysForm : Form {
         {"DisplayTowerRangeHotkey","Show Tower Range"}
     };
 
+    // ----- on/off toggles: {section, key, label} -----
+    static readonly string[,] OPT_HOTKEY_BEHAVIOR = {
+        {"[HOTKEYS]","ShopsQWERTY","Auto-bind shops to QWERTY"},
+        {"[HOTKEYS]","DisableAllDefaultHotkeys","Disable ALL default hotkeys"},
+        {"[HOTKEYS]","DisableDefaultAltHotkeys","Disable all Alt+menu hotkeys"},
+        {"[HOTKEYS]","DisableAltS","Disable Alt+S"}, {"[HOTKEYS]","DisableAltL","Disable Alt+L"},
+        {"[HOTKEYS]","DisableAltH","Disable Alt+H"}, {"[HOTKEYS]","DisableAltO","Disable Alt+O"},
+        {"[HOTKEYS]","DisableAltQ","Disable Alt+Q"}, {"[HOTKEYS]","DisableAltG","Disable Alt+G"},
+        {"[HOTKEYS]","DisableAltT","Disable Alt+T"}, {"[HOTKEYS]","DisableAltA","Disable Alt+A"},
+        {"[HOTKEYS]","DisableAltR","Disable Alt+R"}, {"[HOTKEYS]","DisableAltF","Disable Alt+F"}
+    };
+    static readonly string[,] OPT_GAMEPLAY = {
+        {"[GAMEOPTIONS]","AutoattackEnabled","Auto Attack Enabled"},
+        {"[GAMEOPTIONS]","AutoattackDisabledByStopOnly","Auto-attack disable: Stop only"},
+        {"[GAMEOPTIONS]","SmartAttackEnabled","Smart Attack"},
+        {"[GAMEOPTIONS]","RightClickDeny","Right Click Deny"},
+        {"[GAMEOPTIONS]","SelectionHelperEnabled","Selection Helper"},
+        {"[GAMEOPTIONS]","DoubleClickHelperEnabled","Double Click Support"},
+        {"[GAMEOPTIONS]","KeepLegacyCourierButtonsLayout","Legacy Courier Buttons"},
+        {"[GAMEOPTIONS]","AutoselectHero","Auto-select Hero"},
+        {"[GAMEOPTIONS]","DotA2HPBars","Dota 2 HP Bars"},
+        {"[GAMEOPTIONS]","DisplayManabars","Display Mana Bars"},
+        {"[GAMEOPTIONS]","WideScreen","Wide Screen"},
+        {"[GAMEOPTIONS]","AutoFPSLimit","Auto FPS Limit"},
+        {"[GAMEOPTIONS]","DisplayFPSCounter","Display FPS Counter"},
+        {"[GAMEOPTIONS]","LockMouseAtWindow","Lock Mouse At Window"},
+        {"[GAMEOPTIONS]","TeleportationCanOnlyBeStoppedSoft","TP: Soft-stop only"},
+        {"[GAMEOPTIONS]","TeleportationCanOnlyBeStopped","TP: Can only be stopped"},
+        {"[GAMEOPTIONS]","CloseWC3EveryGame","Close WC3 Every Game"},
+        {"[GAMEOPTIONS]","BlinkAutoShifting","Blink Auto-Shifting"}
+    };
+    static readonly string[,] OPT_VISUALS = {
+        {"[VISUALS]","AlwaysDisplayRangeMarkers","Always Show Range Markers"},
+        {"[VISUALS]","AlwaysDisplayHPRegen","Always Show HP Regen"},
+        {"[VISUALS]","SameSelectionCircleForEveryone","Same Selection Circle"},
+        {"[VISUALS]","AdvancedTooltips","Advanced Tooltips"},
+        {"[VISUALS]","DisplayRegeneration","Display Regeneration"},
+        {"[VISUALS]","CustomFPSInfo","Custom FPS Info"},
+        {"[VISUALS]","EscClearsChat","Esc Clears Chat"},
+        {"[VISUALS]","EscClearsPlayersChat","Esc Clears Players Chat"},
+        {"[VISUALS]","GoodMinimap","Improved Minimap"},
+        {"[VISUALS]","ProperColorsForCreeps","Proper Colors For Creeps"},
+        {"[VISUALS]","AlliesAlwaysGreen","Allies Always Green"},
+        {"[VISUALS]","BetterFPS","Better FPS"}, {"[VISUALS]","BetterFPS2","Better FPS 2"}, {"[VISUALS]","BetterFPS3","Better FPS 3"},
+        {"[VISUALS]","DisableDefaultSpace","Disable Default Space"},
+        {"[VISUALS]","DisableDefaultMouseWheel","Disable Default Mouse Wheel"},
+        {"[VISUALS]","DisableDefaultTilde","Disable Default Tilde"},
+        {"[VISUALS]","ShowTipsWhileDead","Show Tips While Dead"},
+        {"[VISUALS]","ShowItemsInMultiboard","Show Items In Multiboard"},
+        {"[VISUALS]","UseAdvancedHUD","Use Advanced HUD"},
+        {"[VISUALS]","DisableAltTogglingHPBars","Disable Alt-Toggle HP Bars"},
+        {"[VISUALS]","IgnoreAllChat","Ignore All Chat"},
+        {"[VISUALS]","HideHeroNames","Hide Hero Names"},
+        {"[VISUALS]","RepeatGameMessagesIntoChatLog","Repeat Msgs Into Chat Log"},
+        {"[VISUALS]","AlwaysShowCourierButton","Always Show Courier Button"},
+        {"[VISUALS]","HideMinimapSignals","Hide Minimap Signals"},
+        {"[VISUALS]","ColorblindMode","Colorblind Mode"},
+        {"[VISUALS]","AdvancedStatsIconDisabled","Disable Advanced Stats Icon"},
+        {"[VISUALS]","ClassicIngameTime","Classic In-game Time"},
+        {"[VISUALS]","SmoothFogReveal","Smooth Fog Reveal"},
+        {"[VISUALS]","HealingDisplaysAmount","Healing Displays Amount"},
+        {"[VISUALS]","KeepStopHoldButtons","Keep Stop/Hold Buttons"},
+        {"[VISUALS]","DisableHeroCornerButton","Disable Hero Corner Button"},
+        {"[VISUALS]","HideHeroIcon","Hide Hero Icon"},
+        {"[VISUALS]","DisplayAllyGoldOnSelection","Display Ally Gold On Selection"},
+        {"[VISUALS]","UIDisableManacostDisplay","Disable Manacost Display"},
+        {"[VISUALS]","UIDisableHotkeyDisplay","Disable Hotkey Display"},
+        {"[VISUALS]","EnableSoundOfGoldCoins","Gold Coin Sound"}
+    };
+    static readonly string[,] OPT_HERO = {
+        {"[HEROOPTIONS]","Juggernaut_HealingWardDoNotFollow","Juggernaut: Ward Doesn't Follow"},
+        {"[HEROOPTIONS]","Meepo_NumbersOverheadClones","Meepo: Numbers Over Clones"}
+    };
+
     public HotkeysForm(Dictionary<string, string> current) {
         Text = "Wekz App - Custom Hotkeys";
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(460, 560);
-        BackColor = Color.FromArgb(240, 240, 238);
+        ClientSize = new Size(500, 600);
+        BackColor = BG;
         Font = new Font("Segoe UI", 9f);
         KeyPreview = true;
 
         var hint = new Label();
-        hint.Text = "Click a slot, then press the key you want. Esc clears it.";
-        hint.ForeColor = Color.FromArgb(90, 90, 86);
-        hint.SetBounds(16, 10, 430, 20);
+        hint.Text = "Click a slot, press your key combo. Esc clears it.";
+        hint.ForeColor = TEXT_DIM;
+        hint.SetBounds(16, 8, 300, 18);
         Controls.Add(hint);
 
-        scroll = new Panel();
-        scroll.SetBounds(0, 34, 460, 470);
-        scroll.AutoScroll = true;
-        scroll.BackColor = BackColor;
-        Controls.Add(scroll);
+        tabHotkeys = MakeTab("HOTKEYS", 320);
+        tabOptions = MakeTab("OPTIONS", 410);
+        tabHotkeys.Click += delegate { ShowTab(true); };
+        tabOptions.Click += delegate { ShowTab(false); };
 
-        int y = 6;
-        y = AddSection(scroll, "ITEMS", ITEMS, current, y);
-        y = AddSection(scroll, "ABILITIES", ABILITIES, current, y);
-        y = AddSection(scroll, "AUTOCAST", AUTOCAST, current, y);
-        y = AddSection(scroll, "QUICK CAST (ABILITIES)", QUICKCAST, current, y);
-        y = AddSection(scroll, "QUICK CAST (ITEMS)", QUICKCASTITEM, current, y);
-        y = AddSection(scroll, "UNIT ACTIONS", UNITACTIONS, current, y);
-        y = AddSection(scroll, "SELECTION", SELECTION, current, y);
-        y = AddSection(scroll, "INTERFACE", INTERFACE, current, y);
-        AddSection(scroll, "OTHER", OTHER, current, y);
+        hotkeysPanel = new Panel();
+        hotkeysPanel.SetBounds(0, 34, 500, 510);
+        hotkeysPanel.AutoScroll = true;
+        hotkeysPanel.BackColor = PANEL_BG;
+        Controls.Add(hotkeysPanel);
+
+        optionsPanel = new Panel();
+        optionsPanel.SetBounds(0, 34, 500, 510);
+        optionsPanel.AutoScroll = true;
+        optionsPanel.BackColor = PANEL_BG;
+        optionsPanel.Visible = false;
+        Controls.Add(optionsPanel);
+
+        BuildHotkeysPanel(current);
+        BuildOptionsPanel(current);
+        ShowTab(true);
 
         var reset = new Button();
-        reset.Text = "RESET ALL";
+        reset.Text = "RESET TAB";
         reset.FlatStyle = FlatStyle.Flat;
-        reset.FlatAppearance.BorderColor = Color.FromArgb(198, 198, 193);
-        reset.BackColor = Color.White;
-        reset.ForeColor = Color.FromArgb(30, 30, 28);
-        reset.SetBounds(16, 512, 140, 36);
+        reset.FlatAppearance.BorderColor = GOLD_BORDER;
+        reset.BackColor = TILE_BG;
+        reset.ForeColor = GOLD;
+        reset.SetBounds(16, 552, 150, 36);
         reset.Click += delegate {
-            foreach (var b in bindButtons) SetButtonToken(b, "");
+            if (hotkeysPanel.Visible) foreach (var b in bindButtons) SetButtonToken(b, "");
+            else foreach (var c in checkBoxes) c.Checked = false;
         };
         Controls.Add(reset);
 
@@ -895,68 +1004,195 @@ class HotkeysForm : Form {
         save.BackColor = Color.FromArgb(63, 217, 104);
         save.ForeColor = Color.FromArgb(13, 43, 22);
         save.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
-        save.SetBounds(304, 512, 140, 36);
+        save.SetBounds(334, 552, 150, 36);
         save.Click += delegate { DialogResult = DialogResult.OK; Close(); };
         Controls.Add(save);
         AcceptButton = save;
     }
 
-    int AddSection(Panel p, string title, string[,] fields, Dictionary<string, string> current, int y) {
+    Label MakeTab(string text, int x) {
+        var l = new Label();
+        l.Text = text;
+        l.Font = new Font("Segoe UI", 10f, FontStyle.Bold);
+        l.SetBounds(x, 6, 90, 22);
+        l.Cursor = Cursors.Hand;
+        Controls.Add(l);
+        return l;
+    }
+
+    void ShowTab(bool hotkeys) {
+        hotkeysPanel.Visible = hotkeys;
+        optionsPanel.Visible = !hotkeys;
+        tabHotkeys.ForeColor = hotkeys ? GOLD : GOLD_DIM;
+        tabOptions.ForeColor = !hotkeys ? GOLD : GOLD_DIM;
+    }
+
+    void BuildHotkeysPanel(Dictionary<string, string> current) {
+        int y = 6;
+        y = AddGridSection(hotkeysPanel, "ITEMS", ITEMS, 2, current, y);
+        y = AddGridSection(hotkeysPanel, "ABILITIES (CAST)", ABILITIES, 4, current, y);
+        y = AddGridSection(hotkeysPanel, "ABILITIES (AUTOCAST TOGGLE)", AUTOCAST, 4, current, y);
+        y = AddGridSection(hotkeysPanel, "QUICK CAST - ABILITIES", QUICKCAST_ABILITY, 4, current, y);
+        y = AddGridSection(hotkeysPanel, "QUICK CAST - ITEMS", QUICKCAST_ITEM, 2, current, y);
+        y = AddListSection(hotkeysPanel, "UNIT ACTIONS", UNITACTIONS, current, y);
+        y = AddListSection(hotkeysPanel, "SELECTION", SELECTION, current, y);
+        y = AddListSection(hotkeysPanel, "INTERFACE", INTERFACE, current, y);
+        AddListSection(hotkeysPanel, "OTHER", OTHER, current, y);
+    }
+
+    void BuildOptionsPanel(Dictionary<string, string> current) {
+        int y = 6;
+        y = AddCheckSection(optionsPanel, "HOTKEY BEHAVIOR", OPT_HOTKEY_BEHAVIOR, current, y);
+        y = AddCheckSection(optionsPanel, "GAMEPLAY", OPT_GAMEPLAY, current, y);
+        y = AddCheckSection(optionsPanel, "VISUALS", OPT_VISUALS, current, y);
+        AddCheckSection(optionsPanel, "HERO OPTIONS", OPT_HERO, current, y);
+    }
+
+    Label SectionHeader(string title) {
         var lbl = new Label();
         lbl.Text = title;
-        lbl.Font = new Font("Segoe UI", 8f, FontStyle.Bold);
-        lbl.ForeColor = Color.FromArgb(39, 173, 75);
-        lbl.SetBounds(6, y, 400, 18);
+        lbl.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
+        lbl.ForeColor = GOLD;
+        return lbl;
+    }
+
+    // grid of square tiles; a null cell in fields leaves a visual gap (no control)
+    int AddGridSection(Panel p, string title, string[][] fields, int cols, Dictionary<string, string> current, int y) {
+        var lbl = SectionHeader(title);
+        lbl.SetBounds(6, y, 460, 18);
         p.Controls.Add(lbl);
-        y += 22;
+        y += 24;
 
-        int n = fields.GetLength(0);
-        for (int i = 0; i < n; i++) {
-            string iniKey = fields[i, 0];
-            string label = fields[i, 1];
+        int tileW = 66, tileH = 40, gap = 6;
+        int startY = y;
+        for (int i = 0; i < fields.Length; i++) {
+            int col = i % cols, row = i / cols;
+            int x = 10 + col * (tileW + gap);
+            int cy = startY + row * (tileH + gap + 14);
+            if (fields[i] == null) continue;
 
-            var nameLbl = new Label();
-            nameLbl.Text = label;
-            nameLbl.ForeColor = Color.FromArgb(50, 50, 46);
-            nameLbl.SetBounds(16, y + 3, 250, 20);
-            p.Controls.Add(nameLbl);
+            string iniKey = "[HOTKEYS]|" + fields[i][0];
+            string shortLabel = fields[i][1];
 
             var btn = new Button();
             btn.FlatStyle = FlatStyle.Flat;
-            btn.FlatAppearance.BorderColor = Color.FromArgb(198, 198, 193);
-            btn.BackColor = Color.White;
-            btn.ForeColor = Color.FromArgb(30, 30, 28);
-            btn.Font = new Font("JetBrains Mono", 8.5f);
-            btn.SetBounds(272, y, 130, 24);
+            btn.FlatAppearance.BorderSize = 2;
+            btn.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
+            btn.SetBounds(x, cy, tileW, tileH);
 
             var bi = new BindInfo();
             bi.IniKey = iniKey;
             btn.Tag = bi;
-
             string cur;
             SetButtonToken(btn, current.TryGetValue(iniKey, out cur) ? cur : "");
             btn.Click += delegate { ArmButton(btn); };
             p.Controls.Add(btn);
             bindButtons.Add(btn);
 
-            y += 28;
+            var cap = new Label();
+            cap.Text = shortLabel;
+            cap.ForeColor = TEXT_DIM;
+            cap.Font = new Font("Segoe UI", 7f);
+            cap.TextAlign = ContentAlignment.MiddleCenter;
+            cap.SetBounds(x, cy + tileH + 1, tileW, 13);
+            p.Controls.Add(cap);
+        }
+        int rows = (fields.Length + cols - 1) / cols;
+        y = startY + rows * (tileH + gap + 14) + 10;
+        return y;
+    }
+
+    int AddListSection(Panel p, string title, string[,] fields, Dictionary<string, string> current, int y) {
+        var lbl = SectionHeader(title);
+        lbl.SetBounds(6, y, 460, 18);
+        p.Controls.Add(lbl);
+        y += 24;
+
+        int n = fields.GetLength(0);
+        for (int i = 0; i < n; i++) {
+            string iniKey = "[HOTKEYS]|" + fields[i, 0];
+            string label = fields[i, 1];
+
+            var btn = new Button();
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 2;
+            btn.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
+            btn.SetBounds(16, y, 96, 24);
+
+            var bi = new BindInfo();
+            bi.IniKey = iniKey;
+            btn.Tag = bi;
+            string cur;
+            SetButtonToken(btn, current.TryGetValue(iniKey, out cur) ? cur : "");
+            btn.Click += delegate { ArmButton(btn); };
+            p.Controls.Add(btn);
+            bindButtons.Add(btn);
+
+            var nameLbl = new Label();
+            nameLbl.Text = label;
+            nameLbl.ForeColor = TEXT;
+            nameLbl.Font = new Font("Segoe UI", 9f);
+            nameLbl.SetBounds(122, y + 4, 340, 20);
+            p.Controls.Add(nameLbl);
+
+            y += 30;
         }
         y += 8;
+        return y;
+    }
+
+    int AddCheckSection(Panel p, string title, string[,] fields, Dictionary<string, string> current, int y) {
+        var lbl = SectionHeader(title);
+        lbl.SetBounds(6, y, 460, 18);
+        p.Controls.Add(lbl);
+        y += 24;
+
+        int n = fields.GetLength(0);
+        int colW = 230;
+        int startY = y;
+        for (int i = 0; i < n; i++) {
+            string section = fields[i, 0], key = fields[i, 1], label = fields[i, 2];
+            int col = i % 2, row = i / 2;
+
+            var cb = new CheckBox();
+            cb.Text = label;
+            cb.ForeColor = TEXT;
+            cb.Font = new Font("Segoe UI", 8.5f);
+            cb.FlatStyle = FlatStyle.Flat;
+            cb.SetBounds(16 + col * colW, startY + row * 22, colW - 10, 20);
+            string fullKey = section + "|" + key;
+            string cur;
+            cb.Checked = current.TryGetValue(fullKey, out cur) && cur.Trim().ToLower() == "true";
+            cb.Tag = fullKey;
+            p.Controls.Add(cb);
+            checkBoxes.Add(cb);
+        }
+        int rows = (n + 1) / 2;
+        y = startY + rows * 22 + 14;
         return y;
     }
 
     void SetButtonToken(Button b, string token) {
         var bi = (BindInfo)b.Tag;
         bi.Token = token ?? "";
-        b.BackColor = Color.White;
-        b.Text = string.IsNullOrEmpty(bi.Token) ? "(default)" : bi.Token;
+        b.BackColor = TILE_BG;
+        if (string.IsNullOrEmpty(bi.Token)) {
+            b.Text = "NOT USED";
+            b.ForeColor = TEXT_DIM;
+            b.FlatAppearance.BorderColor = GOLD_BORDER;
+        } else {
+            b.Text = bi.Token;
+            b.ForeColor = GREEN;
+            b.FlatAppearance.BorderColor = GREEN_BORDER;
+        }
     }
 
     void ArmButton(Button b) {
         if (armedButton != null && armedButton != b) SetButtonToken(armedButton, ((BindInfo)armedButton.Tag).Token);
         armedButton = b;
-        b.BackColor = Color.FromArgb(210, 245, 220);
-        b.Text = "press a key...";
+        b.BackColor = ARMED_BG;
+        b.ForeColor = GREEN;
+        b.Text = "...";
     }
 
     protected override void OnKeyDown(KeyEventArgs e) {
@@ -971,8 +1207,7 @@ class HotkeysForm : Form {
             } else {
                 bi.Token = KeyEventToToken(e);
             }
-            b.BackColor = Color.White;
-            b.Text = string.IsNullOrEmpty(bi.Token) ? "(default)" : bi.Token;
+            SetButtonToken(b, bi.Token);
             armedButton = null;
             e.Handled = true; e.SuppressKeyPress = true;
             return;
@@ -1003,6 +1238,7 @@ class HotkeysForm : Form {
             var bi = (BindInfo)b.Tag;
             d[bi.IniKey] = bi.Token;
         }
+        foreach (var cb in checkBoxes) d[(string)cb.Tag] = cb.Checked ? "true" : "false";
         return d;
     }
 }
