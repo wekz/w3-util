@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Media;
 using System.Net;
@@ -378,20 +379,9 @@ static class Program {
         return ParseStatsHtml(html);
     }
 
-    static void OpenStats() {
-        string user = GetRgcUser();
+    static void LoadStats(StatsForm f, string user) {
         string room = optRgcRoom;
-        if (string.IsNullOrEmpty(user)) {
-            if (optBalloon) trayIcon.ShowBalloonTip(4000, "RGC stats", "Could not read your RGC username from Preferences.", ToolTipIcon.Warning);
-            Log("stats: could not read RGC username");
-            return;
-        }
-
-        var f = new StatsForm();
-        f.Icon = trayIcon.Icon;
         f.SetLoading(user);
-        f.Show();
-
         Task.Factory.StartNew(delegate { return FetchStats(user, room); })
             .ContinueWith(delegate(Task<RgcStats> t) {
                 if (t.IsFaulted) {
@@ -404,6 +394,21 @@ static class Program {
                     Log("stats loaded for " + user + " (uid " + t.Result.Uid + ")");
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
+    }
+
+    static void OpenStats() {
+        string user = GetRgcUser();
+        if (string.IsNullOrEmpty(user)) {
+            if (optBalloon) trayIcon.ShowBalloonTip(4000, "RGC stats", "Could not read your RGC username from Preferences.", ToolTipIcon.Warning);
+            Log("stats: could not read RGC username");
+            return;
+        }
+
+        var f = new StatsForm();
+        f.Icon = trayIcon.Icon;
+        f.SearchRequested += delegate(object s, string name) { LoadStats(f, name); };
+        f.Show();
+        LoadStats(f, user);
     }
 
     [STAThread]
@@ -651,8 +656,11 @@ class RgcStats {
 }
 
 class StatsForm : Form {
+    public event EventHandler<string> SearchRequested;
+
+    TextBox searchBox;
     Label lblLoading;
-    Label lblName, lblRank, lblWinPct, lblGames, lblScore;
+    Label lblName, lblRank, lblWinPct, lblGames, lblScore, lblExtra;
     Panel barPanel;
     Label lblKillsVal, lblDeathsVal, lblAssistsVal;
     Button btnProfile;
@@ -665,21 +673,40 @@ class StatsForm : Form {
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(320, 256);
+        ClientSize = new Size(320, 300);
         BackColor = Color.FromArgb(240, 240, 238);
         Font = new Font("Segoe UI", 9f);
+
+        searchBox = new TextBox();
+        searchBox.Font = new Font("Segoe UI", 9f);
+        searchBox.SetBounds(20, 14, 190, 24);
+        searchBox.KeyDown += delegate(object s, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; DoSearch(); }
+        };
+        Controls.Add(searchBox);
+
+        var searchBtn = new Button();
+        searchBtn.Text = "SEARCH";
+        searchBtn.FlatStyle = FlatStyle.Flat;
+        searchBtn.FlatAppearance.BorderSize = 0;
+        searchBtn.BackColor = Color.FromArgb(63, 217, 104);
+        searchBtn.ForeColor = Color.FromArgb(13, 43, 22);
+        searchBtn.Font = new Font("Segoe UI", 8f, FontStyle.Bold);
+        searchBtn.SetBounds(216, 14, 84, 24);
+        searchBtn.Click += delegate { DoSearch(); };
+        Controls.Add(searchBtn);
 
         lblLoading = new Label();
         lblLoading.Font = new Font("Segoe UI", 10f);
         lblLoading.ForeColor = Color.FromArgb(90, 90, 86);
-        lblLoading.SetBounds(20, 16, 280, 60);
+        lblLoading.SetBounds(20, 52, 280, 60);
         Controls.Add(lblLoading);
 
         lblName = new Label();
         lblName.Font = new Font("Segoe UI", 15f, FontStyle.Bold);
         lblName.ForeColor = Color.FromArgb(30, 30, 28);
         lblName.AutoEllipsis = true;
-        lblName.SetBounds(20, 16, 190, 28);
+        lblName.SetBounds(20, 50, 190, 28);
         Add(lblName);
 
         lblRank = new Label();
@@ -687,26 +714,26 @@ class StatsForm : Form {
         lblRank.ForeColor = Color.White;
         lblRank.BackColor = Color.FromArgb(63, 217, 104);
         lblRank.TextAlign = ContentAlignment.MiddleCenter;
-        lblRank.SetBounds(216, 16, 84, 28);
+        lblRank.SetBounds(216, 50, 84, 28);
+        lblRank.Region = RoundedRegion(new Rectangle(0, 0, 84, 28), 14);
         Add(lblRank);
 
         barPanel = new Panel();
-        barPanel.SetBounds(20, 56, 280, 20);
-        barPanel.BackColor = Color.FromArgb(220, 220, 216);
+        barPanel.SetBounds(20, 90, 280, 20);
         barPanel.Paint += BarPanel_Paint;
         Add(barPanel);
 
         lblWinPct = new Label();
         lblWinPct.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
         lblWinPct.ForeColor = Color.FromArgb(39, 173, 75);
-        lblWinPct.SetBounds(20, 82, 150, 18);
+        lblWinPct.SetBounds(20, 116, 150, 18);
         Add(lblWinPct);
 
         lblGames = new Label();
         lblGames.Font = new Font("Segoe UI", 9f);
         lblGames.ForeColor = Color.FromArgb(120, 120, 116);
         lblGames.TextAlign = ContentAlignment.MiddleRight;
-        lblGames.SetBounds(150, 82, 150, 18);
+        lblGames.SetBounds(150, 116, 150, 18);
         Add(lblGames);
 
         lblKillsVal   = AddTile("KILLS", 20);
@@ -714,10 +741,16 @@ class StatsForm : Form {
         lblAssistsVal = AddTile("ASSISTS", 206);
 
         lblScore = new Label();
-        lblScore.Font = new Font("JetBrains Mono", 10.5f, FontStyle.Bold);
+        lblScore.Font = new Font("JetBrains Mono", 11f, FontStyle.Bold);
         lblScore.ForeColor = Color.FromArgb(39, 173, 75);
-        lblScore.SetBounds(20, 172, 280, 26);
+        lblScore.SetBounds(20, 204, 280, 22);
         Add(lblScore);
+
+        lblExtra = new Label();
+        lblExtra.Font = new Font("Segoe UI", 8.5f);
+        lblExtra.ForeColor = Color.FromArgb(120, 120, 116);
+        lblExtra.SetBounds(20, 226, 280, 18);
+        Add(lblExtra);
 
         btnProfile = new Button();
         btnProfile.Text = "VIEW FULL PROFILE";
@@ -726,11 +759,17 @@ class StatsForm : Form {
         btnProfile.BackColor = Color.White;
         btnProfile.ForeColor = Color.FromArgb(30, 30, 28);
         btnProfile.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
-        btnProfile.SetBounds(20, 208, 280, 32);
+        btnProfile.SetBounds(20, 250, 280, 32);
         btnProfile.Click += delegate {
             if (profileUrl != null) { try { Process.Start(profileUrl); } catch { } }
         };
         Add(btnProfile);
+    }
+
+    void DoSearch() {
+        string name = (searchBox.Text ?? "").Trim();
+        if (name.Length == 0) return;
+        if (SearchRequested != null) SearchRequested(this, name);
     }
 
     void Add(Control c) {
@@ -744,24 +783,43 @@ class StatsForm : Form {
         cap.Text = caption;
         cap.Font = new Font("Segoe UI", 7.5f, FontStyle.Bold);
         cap.ForeColor = Color.FromArgb(140, 140, 136);
-        cap.SetBounds(x, 112, 86, 16);
+        cap.SetBounds(x, 146, 86, 16);
         Add(cap);
 
         var val = new Label();
         val.Font = new Font("JetBrains Mono", 16f, FontStyle.Bold);
         val.ForeColor = Color.FromArgb(30, 30, 28);
-        val.SetBounds(x, 130, 86, 32);
+        val.SetBounds(x, 164, 86, 30);
         Add(val);
         return val;
     }
 
+    static Region RoundedRegion(Rectangle rect, int radius) {
+        int d = radius * 2;
+        var path = new GraphicsPath();
+        path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+        path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+        path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+        path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+        path.CloseFigure();
+        return new Region(path);
+    }
+
     void BarPanel_Paint(object sender, PaintEventArgs e) {
         int w = barPanel.Width, h = barPanel.Height;
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        var pillPath = new GraphicsPath();
+        pillPath.AddArc(0, 0, h, h, 90, 180);
+        pillPath.AddArc(w - h, 0, h, h, 270, 180);
+        pillPath.CloseFigure();
+        e.Graphics.SetClip(pillPath);
+
         int winW = (int)(w * (winPctValue / 100.0));
         using (var gBrush = new SolidBrush(Color.FromArgb(63, 217, 104)))
             e.Graphics.FillRectangle(gBrush, 0, 0, winW, h);
         using (var rBrush = new SolidBrush(Color.FromArgb(207, 68, 68)))
             e.Graphics.FillRectangle(rBrush, winW, 0, w - winW, h);
+        e.Graphics.ResetClip();
     }
 
     void ShowData(bool show) {
@@ -794,8 +852,8 @@ class StatsForm : Form {
         lblDeathsVal.Text = s.Deaths;
         lblAssistsVal.Text = s.Assists;
 
-        lblScore.Text = "SCORE  " + s.Score + "    KDA  " + s.KdaRatio +
-            (s.Reliability != "?" ? "    " + s.Reliability + "%R" : "");
+        lblScore.Text = "SCORE  " + s.Score;
+        lblExtra.Text = "KDA " + s.KdaRatio + (s.Reliability != "?" ? "   |   " + s.Reliability + "% reliable" : "");
 
         profileUrl = "https://ladder.rankedgaming.com/achievements.php?uid=" + s.Uid + "&room=" + room;
 
