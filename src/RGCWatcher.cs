@@ -673,7 +673,7 @@ class StatsForm : Form {
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(320, 300);
+        ClientSize = new Size(320, 320);
         BackColor = Color.FromArgb(240, 240, 238);
         Font = new Font("Segoe UI", 9f);
 
@@ -726,14 +726,13 @@ class StatsForm : Form {
         lblWinPct = new Label();
         lblWinPct.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
         lblWinPct.ForeColor = Color.FromArgb(39, 173, 75);
-        lblWinPct.SetBounds(20, 116, 150, 18);
+        lblWinPct.SetBounds(20, 116, 280, 18);
         Add(lblWinPct);
 
         lblGames = new Label();
         lblGames.Font = new Font("Segoe UI", 9f);
         lblGames.ForeColor = Color.FromArgb(120, 120, 116);
-        lblGames.TextAlign = ContentAlignment.MiddleRight;
-        lblGames.SetBounds(150, 116, 150, 18);
+        lblGames.SetBounds(20, 136, 280, 18);
         Add(lblGames);
 
         lblKillsVal   = AddTile("KILLS", 20);
@@ -743,13 +742,13 @@ class StatsForm : Form {
         lblScore = new Label();
         lblScore.Font = new Font("JetBrains Mono", 11f, FontStyle.Bold);
         lblScore.ForeColor = Color.FromArgb(39, 173, 75);
-        lblScore.SetBounds(20, 204, 280, 22);
+        lblScore.SetBounds(20, 224, 280, 22);
         Add(lblScore);
 
         lblExtra = new Label();
         lblExtra.Font = new Font("Segoe UI", 8.5f);
         lblExtra.ForeColor = Color.FromArgb(120, 120, 116);
-        lblExtra.SetBounds(20, 226, 280, 18);
+        lblExtra.SetBounds(20, 246, 280, 18);
         Add(lblExtra);
 
         btnProfile = new Button();
@@ -759,7 +758,7 @@ class StatsForm : Form {
         btnProfile.BackColor = Color.White;
         btnProfile.ForeColor = Color.FromArgb(30, 30, 28);
         btnProfile.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold);
-        btnProfile.SetBounds(20, 250, 280, 32);
+        btnProfile.SetBounds(20, 270, 280, 32);
         btnProfile.Click += delegate {
             if (profileUrl != null) { try { Process.Start(profileUrl); } catch { } }
         };
@@ -783,13 +782,13 @@ class StatsForm : Form {
         cap.Text = caption;
         cap.Font = new Font("Segoe UI", 7.5f, FontStyle.Bold);
         cap.ForeColor = Color.FromArgb(140, 140, 136);
-        cap.SetBounds(x, 146, 86, 16);
+        cap.SetBounds(x, 166, 86, 16);
         Add(cap);
 
         var val = new Label();
         val.Font = new Font("JetBrains Mono", 16f, FontStyle.Bold);
         val.ForeColor = Color.FromArgb(30, 30, 28);
-        val.SetBounds(x, 164, 86, 30);
+        val.SetBounds(x, 184, 86, 30);
         Add(val);
         return val;
     }
