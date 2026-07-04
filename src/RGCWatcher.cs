@@ -64,6 +64,7 @@ static class Program {
 
     static NotifyIcon trayIcon;
     static ToolStripMenuItem bgMenuRoot;
+    static ToolStripMenuItem fixLatency, fixGfx;
     static bool handled = false, notified = false, hkHeld = false, hk2Held = false;
     static DateTime hkLast = DateTime.MinValue;
     static uint vkGrave;
@@ -268,6 +269,146 @@ static class Program {
         }
     }
 
+    // ---------- W3 fixes: undo LAA, latency, graphics, mod cleanup ----------
+    const string LAYERS_KEY = @"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
+    const string GFX_FLAGS = "~ HIGHDPIAWARE DISABLEDXMAXIMIZEDWINDOWEDMODE";
+    const string TCP_IF_KEY = @"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces";
+
+    static string War3ExePath() { return Path.Combine(GetW3Dir(), "war3.exe"); }
+
+    static void UpdateFixChecks() {
+        try { fixLatency.Checked = IsLatencyFixApplied(); } catch { }
+        try { fixGfx.Checked = IsGfxFixApplied(); } catch { }
+    }
+
+    static void UndoLaaPatch() {
+        try {
+            string exe = War3ExePath();
+            string backup = exe + ".pre-LAA-backup";
+            if (!File.Exists(backup)) {
+                MessageBox.Show("No backup found:\n" + backup, "4GB patch",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (Process.GetProcessesByName("war3").Length > 0) {
+                MessageBox.Show("Warcraft III is running.\nClose the game first.",
+                    "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            File.Copy(backup, exe, true);
+            Log("LAA patch reverted, original war3.exe restored");
+            MessageBox.Show("Original war3.exe restored from backup.", "4GB patch",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        } catch (Exception ex) {
+            MessageBox.Show("Restore failed: " + ex.Message, "4GB patch",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    static bool IsLatencyFixApplied() {
+        using (var ifs = Registry.LocalMachine.OpenSubKey(TCP_IF_KEY)) {
+            if (ifs == null) return false;
+            foreach (var name in ifs.GetSubKeyNames()) {
+                using (var k = ifs.OpenSubKey(name)) {
+                    if (k == null) continue;
+                    object v = k.GetValue("TcpAckFrequency");
+                    if (v is int && (int)v == 1) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static void ToggleLatencyFix() {
+        try {
+            bool applied = IsLatencyFixApplied();
+            using (var ifs = Registry.LocalMachine.OpenSubKey(TCP_IF_KEY, true)) {
+                if (ifs == null) throw new Exception("TCP interfaces key not found");
+                foreach (var name in ifs.GetSubKeyNames()) {
+                    using (var k = ifs.OpenSubKey(name, true)) {
+                        if (k == null) continue;
+                        if (applied) {
+                            k.DeleteValue("TcpAckFrequency", false);
+                            k.DeleteValue("TCPNoDelay", false);
+                        } else {
+                            k.SetValue("TcpAckFrequency", 1, RegistryValueKind.DWord);
+                            k.SetValue("TCPNoDelay", 1, RegistryValueKind.DWord);
+                        }
+                    }
+                }
+            }
+            Log("latency fix " + (applied ? "removed" : "applied"));
+            MessageBox.Show(applied
+                ? "Latency fix removed.\nRestart Windows for it to take effect."
+                : "Latency fix applied (TcpAckFrequency / TCPNoDelay).\n" +
+                  "Lowers in-game delay on RGC/LAN.\n\n" +
+                  "Restart Windows (or disable/enable your network adapter) for it to take effect.",
+                "Latency fix", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        } catch (UnauthorizedAccessException) {
+            MessageBox.Show("Access denied - administrator rights required.\n" +
+                "Start Wekz App via the scheduled task and try again.",
+                "Latency fix", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        } catch (Exception ex) {
+            MessageBox.Show("Failed: " + ex.Message, "Latency fix",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    static bool IsGfxFixApplied() {
+        using (var k = Registry.CurrentUser.OpenSubKey(LAYERS_KEY)) {
+            return k != null && k.GetValue(War3ExePath()) != null;
+        }
+    }
+
+    static void ToggleGfxFix() {
+        try {
+            bool applied = IsGfxFixApplied();
+            using (var k = Registry.CurrentUser.CreateSubKey(LAYERS_KEY)) {
+                if (applied) k.DeleteValue(War3ExePath(), false);
+                else k.SetValue(War3ExePath(), GFX_FLAGS, RegistryValueKind.String);
+            }
+            Log("gfx fix " + (applied ? "removed" : "applied") + " for " + War3ExePath());
+            MessageBox.Show(applied
+                ? "Smooth graphics fix removed.\nTakes effect on next game launch."
+                : "Smooth graphics fix applied:\n" +
+                  "- DPI scaling override (no blurry picture on 125%/150% scaling)\n" +
+                  "- fullscreen optimizations disabled (less stutter)\n\n" +
+                  "Takes effect on next game launch.",
+                "Smooth graphics", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        } catch (Exception ex) {
+            MessageBox.Show("Failed: " + ex.Message, "Smooth graphics",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    static void CleanModFiles() {
+        try {
+            string w3 = GetW3Dir();
+            string dest = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "W3-removed-mods");
+            string[] known = { "audiere.dll" };
+            var moved = new List<string>();
+            foreach (var f in known) {
+                string src = Path.Combine(w3, f);
+                if (!File.Exists(src)) continue;
+                Directory.CreateDirectory(dest);
+                string target = Path.Combine(dest, f);
+                if (File.Exists(target)) File.Delete(target);
+                File.Move(src, target);
+                moved.Add(f);
+            }
+            Log("clean mod files: " + (moved.Count > 0 ? string.Join(", ", moved.ToArray()) : "nothing found"));
+            MessageBox.Show(moved.Count > 0
+                ? "Moved out of the game folder:\n" + string.Join("\n", moved.ToArray()) +
+                  "\n\nSaved to: " + dest + "\nRGC should start the game normally now."
+                : "No known problematic files found - game folder looks clean.",
+                "Clean mod files", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        } catch (Exception ex) {
+            MessageBox.Show("Failed: " + ex.Message, "Clean mod files",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
     // ---------- RGC stats ----------
     static RgcStats ParseStatsHtml(string html) {
         int rowIdx = html.IndexOf("class=\"row animate\"", StringComparison.Ordinal);
@@ -400,7 +541,20 @@ static class Program {
         bgMenuRoot = new ToolStripMenuItem("    Menu background");
         BuildBgMenu();
         menu.Items.Add(bgMenuRoot);
-        menu.Items.Add("    Apply 4GB patch (memory fix)", null, delegate { ApplyLaaPatch(); });
+        var fixesRoot = new ToolStripMenuItem("    Fixes");
+        fixesRoot.DropDownItems.Add("4GB memory patch (SFile.cpp crash)", null, delegate { ApplyLaaPatch(); });
+        fixesRoot.DropDownItems.Add("Undo 4GB patch (restore backup)", null, delegate { UndoLaaPatch(); });
+        fixesRoot.DropDownItems.Add(new ToolStripSeparator());
+        fixLatency = new ToolStripMenuItem("Latency fix (lower in-game delay)");
+        fixLatency.Click += delegate { ToggleLatencyFix(); };
+        fixesRoot.DropDownItems.Add(fixLatency);
+        fixGfx = new ToolStripMenuItem("Smooth graphics (DPI / fullscreen fix)");
+        fixGfx.Click += delegate { ToggleGfxFix(); };
+        fixesRoot.DropDownItems.Add(fixGfx);
+        fixesRoot.DropDownItems.Add(new ToolStripSeparator());
+        fixesRoot.DropDownItems.Add("Clean mod files (RGC start error)", null, delegate { CleanModFiles(); });
+        fixesRoot.DropDownOpening += delegate { UpdateFixChecks(); };
+        menu.Items.Add(fixesRoot);
 
         // ----- app -----
         menu.Items.Add(new ToolStripSeparator());
