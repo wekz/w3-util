@@ -223,6 +223,51 @@ static class Program {
         } catch (Exception ex) { Log("w3 background error: " + ex.Message); }
     }
 
+    // ---------- war3 4GB (LAA) patch ----------
+    static void ApplyLaaPatch() {
+        try {
+            string exe = Path.Combine(GetW3Dir(), "war3.exe");
+            if (!File.Exists(exe)) {
+                MessageBox.Show("war3.exe not found:\n" + exe, "4GB patch",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (Process.GetProcessesByName("war3").Length > 0) {
+                MessageBox.Show("Warcraft III is running.\nClose the game first, then apply the patch.",
+                    "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            byte[] bytes = File.ReadAllBytes(exe);
+            int peOff = BitConverter.ToInt32(bytes, 0x3C);
+            int charOff = peOff + 4 + 18;
+            ushort chars = BitConverter.ToUInt16(bytes, charOff);
+            if ((chars & 0x20) != 0) {
+                MessageBox.Show("Already patched - war3.exe can use 4 GB of memory.",
+                    "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            string backup = exe + ".pre-LAA-backup";
+            if (!File.Exists(backup)) File.Copy(exe, backup);
+            ushort patched = (ushort)(chars | 0x20);
+            bytes[charOff] = (byte)(patched & 0xFF);
+            bytes[charOff + 1] = (byte)(patched >> 8);
+            File.WriteAllBytes(exe, bytes);
+            Log("LAA patch applied to " + exe + ": 0x" + chars.ToString("X4") + " -> 0x" + patched.ToString("X4"));
+            MessageBox.Show("Done! war3.exe can now use 4 GB of memory.\n" +
+                "This fixes the \"Not enough memory / SFile.cpp\" crash.\n\n" +
+                "Backup saved as:\n" + backup,
+                "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        } catch (UnauthorizedAccessException) {
+            MessageBox.Show("Access denied writing to war3.exe.\n" +
+                "Start Wekz App as administrator (or via the scheduled task) and try again.",
+                "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        } catch (Exception ex) {
+            Log("LAA patch error: " + ex.Message);
+            MessageBox.Show("Patch failed: " + ex.Message, "4GB patch",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
     // ---------- RGC stats ----------
     static RgcStats ParseStatsHtml(string html) {
         int rowIdx = html.IndexOf("class=\"row animate\"", StringComparison.Ordinal);
@@ -355,6 +400,7 @@ static class Program {
         bgMenuRoot = new ToolStripMenuItem("    Menu background");
         BuildBgMenu();
         menu.Items.Add(bgMenuRoot);
+        menu.Items.Add("    Apply 4GB patch (memory fix)", null, delegate { ApplyLaaPatch(); });
 
         // ----- app -----
         menu.Items.Add(new ToolStripSeparator());
