@@ -913,7 +913,7 @@ static class Program {
         if (!File.Exists(offsetFile) && optBalloon)
             trayIcon.ShowBalloonTip(10000, "W3 Util - first run",
                 "Open RGC, place the mouse cursor on the SIGN button and press Alt+F2 to calibrate. " +
-                "After that " + HotkeyText() + " signs from anywhere - even in-game.",
+                "After that " + HotkeyText() + " signs from anywhere, even in-game.",
                 ToolTipIcon.Info);
 
         Application.Run();
