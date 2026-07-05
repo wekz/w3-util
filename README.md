@@ -2,6 +2,8 @@
 
 A small Windows tray utility that makes playing **Dota 1 on RGC (Ranked Gaming Client)** comfortable: sign for games with a hotkey without leaving your current match, get borderless Warcraft III with auto-focus, restyle the game and the client — all from the system tray.
 
+> **Why this exists** 🍻 — I made this for me and my friends, so when we get together for Dota 1 LAN nights like in the good old days, nobody wastes half the evening hunting down patches, fixes and settings scattered across the internet. Everything we use for RGC and Dota 1 lives here — one installer and you're in the game. :D
+
 **[⬇ Download the latest installer](https://github.com/wekz/w3-util/releases/latest)** — one exe, one double-click, everything set up.
 
 ## Features
