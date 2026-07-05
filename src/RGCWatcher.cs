@@ -1,5 +1,5 @@
 // =====================================================================
-// W3 Util v2.2
+// W3 Util v2.3
 //  - war3 start -> borderless fullscreen + fokus u lobi + zvuk + notifikacija
 //    (zahteva "-window" u RGC WC3 launch opcijama)
 //  - SIGN hotkey (podesiv u Settings, default Alt+`) = klik u pozadini
@@ -70,14 +70,31 @@ static class Program {
                SWP_NOSIZE = 0x0001, SWP_NOMOVE = 0x0002;
 
     static string baseDir      = AppDomain.CurrentDomain.BaseDirectory;
-    static string logFile      = Path.Combine(baseDir, "watcher.log");
-    static string offsetFile   = Path.Combine(baseDir, "sign-offset.txt");
+    static string dataDir      = Path.Combine(baseDir, "data");   // runtime fajlovi (podesavanja, kalibracija, logovi)
+    static string logFile      = Path.Combine(dataDir, "watcher.log");
+    static string offsetFile   = Path.Combine(dataDir, "sign-offset.txt");
     static string alertWav     = Path.Combine(baseDir, "game-alert.wav");
-    static string settingsFile = Path.Combine(baseDir, "settings.ini");
+    static string settingsFile = Path.Combine(dataDir, "settings.ini");
     static string bgDir        = Path.Combine(baseDir, "backgrounds");
-    static string stateFile    = Path.Combine(baseDir, "sign-states.txt");
+    static string stateFile    = Path.Combine(dataDir, "sign-states.txt");
     static string uiskinDir    = Path.Combine(baseDir, "uiskins");
-    static string uiManifest   = Path.Combine(baseDir, "uiskin-installed.txt");
+    static string uiManifest   = Path.Combine(dataDir, "uiskin-installed.txt");
+
+    // starije verzije su drzale ove fajlove u root folderu - preseli ih u data\
+    static void MigrateDataFiles() {
+        try {
+            Directory.CreateDirectory(dataDir);
+            string[] keep = { "settings.ini", "sign-offset.txt", "sign-states.txt", "uiskin-installed.txt" };
+            foreach (var f in keep) {
+                string oldP = Path.Combine(baseDir, f), newP = Path.Combine(dataDir, f);
+                try { if (File.Exists(oldP) && !File.Exists(newP)) File.Move(oldP, newP); } catch { }
+            }
+            string[] drop = { "watcher.log", "setup.log" };
+            foreach (var f in drop) {
+                try { File.Delete(Path.Combine(baseDir, f)); } catch { }
+            }
+        } catch { }
+    }
 
     // RGC folder se trazi dinamicki (razliciti racunari = razlicite putanje):
     // 1) putanja pokrenutog rgc.exe procesa, 2) standardna instalacija,
@@ -206,6 +223,33 @@ static class Program {
     static bool IsElevated() {
         using (var id = WindowsIdentity.GetCurrent())
             return new WindowsPrincipal(id).IsInRole(WindowsBuiltInRole.Administrator);
+    }
+
+    // Scheduled task mora da pokazuje na aktuelni W3Util.exe (posle rebranda je znao
+    // da ostane na starom Wekzy.exe). Radi samo kad smo elevated — tada task
+    // registrujemo/prepravljamo sami, bez rucnog install.ps1.
+    static void EnsureTask() {
+        if (!IsElevated()) return;
+        string exe = Path.Combine(baseDir, "W3Util.exe");
+        if (!File.Exists(exe)) exe = Application.ExecutablePath;
+        string xml = RunCapture("schtasks", "/Query /TN \"RGC Game Watcher\" /XML");
+        if (xml.IndexOf(exe, StringComparison.OrdinalIgnoreCase) >= 0) return;
+        RunCapture("schtasks", "/Create /F /TN \"RGC Game Watcher\" /TR \"\\\"" + exe + "\\\"\" /SC ONLOGON /RL HIGHEST");
+        Log("scheduled task -> " + exe);
+    }
+
+    static string RunCapture(string file, string args) {
+        try {
+            var psi = new ProcessStartInfo(file, args);
+            psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
+            psi.RedirectStandardOutput = true;
+            using (var p = Process.Start(psi)) {
+                string s = p.StandardOutput.ReadToEnd();
+                p.WaitForExit(10000);
+                return s;
+            }
+        } catch { return ""; }
     }
 
     static Process FindWithWindow(string name) {
@@ -833,11 +877,31 @@ static class Program {
 
     [STAThread]
     static void Main() {
+        // war3 prozor je na visem integrity nivou (UIPI) — bez admin prava borderless ne radi.
+        // Dupli klik pokrece exe ne-elevated: odmah se restartuj kao admin (UAC prompt).
+        if (!IsElevated()) {
+            try {
+                var psi = new ProcessStartInfo(Application.ExecutablePath);
+                psi.UseShellExecute = true;
+                psi.Verb = "runas";
+                psi.WorkingDirectory = baseDir;
+                Process.Start(psi);
+                return;  // elevated instanca preuzima
+            } catch { }  // korisnik odbio UAC — nastavi bez admina (sve osim borderless radi)
+        }
+        // ugasi duple instance (task + rucno pokretanje, stara imena) — poslednja pokrenuta pobedjuje
+        int myPid = Process.GetCurrentProcess().Id;
+        foreach (var name in new[] { "W3Util", "Wekzy", "RGCWatcher" })
+            foreach (var p in Process.GetProcessesByName(name))
+                if (p.Id != myPid) { try { p.Kill(); p.WaitForExit(3000); } catch { } }
+
         try { SetProcessDPIAware(); } catch { }  // tacne koordinate i na 125%/150% skaliranju
+        MigrateDataFiles();
         try { File.WriteAllText(logFile, ""); } catch { }
         LoadSettings();
         LoadSignStates();
-        Log("start (W3 Util v2.2) | elevated=" + IsElevated());
+        Log("start (W3 Util v2.3) | elevated=" + IsElevated());
+        try { EnsureTask(); } catch { }
         InitSfx();
         vkGrave = MapVirtualKey(0x29, 3);
         if (vkGrave == 0) vkGrave = 0xC0;
@@ -936,7 +1000,7 @@ static class Program {
             }
             if (!handled) {
                 if (optBorderless) {
-                    try { handled = SetBorderless(war3); if (handled) Log("war3 borderless applied"); }
+                    try { handled = SetBorderless(war3); }
                     catch (Exception ex) { Log("war3 borderless error: " + ex.Message); }
                 } else handled = true;
             }
@@ -953,7 +1017,17 @@ static class Program {
 
         int style = GetWindowLong(h, GWL_STYLE);
         int newStyle = style & ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-        if (newStyle != style) SetWindowLong(h, GWL_STYLE, newStyle);
+        if (newStyle != style) {
+            SetWindowLong(h, GWL_STYLE, newStyle);
+            if (GetWindowLong(h, GWL_STYLE) == style) {
+                // UIPI: war3 je na visem integrity nivou — bez admin prava stil ne moze da se menja.
+                // Vracamo true da ne pokusavamo svaki tick (nece proci dok app ne radi kao admin).
+                Log("war3 borderless FAILED (access denied) | elevated=" + IsElevated() +
+                    " — pokreni app kroz scheduled task 'RGC Game Watcher'");
+                return true;
+            }
+            Log("war3 borderless applied");
+        }
 
         Rectangle b = Screen.PrimaryScreen.Bounds;
         SetWindowPos(h, IntPtr.Zero, b.X, b.Y, b.Width, b.Height,

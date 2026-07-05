@@ -5,7 +5,8 @@
 # Upgrade postupak: izmeni src\RGCWatcher.cs -> .\build.ps1 -> .\install.ps1 (kao admin)
 $ErrorActionPreference = 'Stop'
 $tools = Split-Path -Parent $MyInvocation.MyCommand.Path
-$log = Join-Path $tools 'setup.log'
+New-Item -ItemType Directory -Force (Join-Path $tools 'data') | Out-Null
+$log = Join-Path $tools 'data\setup.log'
 Add-Content $log "$(Get-Date) install (exe) start"
 try {
     if (-not (Test-Path "$tools\W3Util.exe")) { throw "W3Util.exe ne postoji - prvo pokreni build.ps1" }
