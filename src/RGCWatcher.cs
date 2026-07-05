@@ -259,6 +259,42 @@ static class Program {
         } catch { }
     }
 
+    // ---------- autostart (scheduled task) ----------
+    const string TaskName = "RGC Game Watcher";
+
+    static bool IsAutostartEnabled() {
+        try {
+            var psi = new ProcessStartInfo("schtasks", "/Query /TN \"" + TaskName + "\" /XML");
+            psi.UseShellExecute = false; psi.CreateNoWindow = true;
+            psi.RedirectStandardOutput = true; psi.RedirectStandardError = true;
+            using (var p = Process.Start(psi)) {
+                string o = p.StandardOutput.ReadToEnd();
+                p.WaitForExit(5000);
+                if (p.ExitCode != 0) return false;   // task ne postoji
+                // XML nije lokalizovan (za razliku od /FO LIST ispisa)
+                return o.IndexOf("<Enabled>false</Enabled>", StringComparison.OrdinalIgnoreCase) < 0;
+            }
+        } catch { return true; }
+    }
+
+    static void SetAutostart(bool on) {
+        try {
+            var psi = new ProcessStartInfo("schtasks",
+                "/Change /TN \"" + TaskName + "\" " + (on ? "/ENABLE" : "/DISABLE"));
+            psi.UseShellExecute = false; psi.CreateNoWindow = true;
+            psi.RedirectStandardOutput = true; psi.RedirectStandardError = true;
+            using (var p = Process.Start(psi)) {
+                p.WaitForExit(5000);
+                if (p.ExitCode == 0) Log("autostart " + (on ? "enabled" : "disabled"));
+                else {
+                    Log("autostart change failed (exit " + p.ExitCode + ") - no admin rights?");
+                    if (optBalloon) trayIcon.ShowBalloonTip(4000, "Autostart",
+                        "Could not change the autostart task (needs admin).", ToolTipIcon.Warning);
+                }
+            }
+        } catch (Exception ex) { Log("autostart error: " + ex.Message); }
+    }
+
     static SettingsForm settingsOpen = null;
     static void OpenSettings() {
         if (settingsOpen != null) { settingsOpen.Activate(); return; }
@@ -270,6 +306,8 @@ static class Program {
         f.cbN.Checked = optBalloon;
         f.cbH.Checked = optHotkey;
         f.cbM.Checked = optSignMouse;
+        bool wasAutostart = IsAutostartEnabled();
+        f.cbA.Checked = wasAutostart;
         f.SetHotkey(optSignVk, optSignAlt, optSignCtrl, optSignShift);
         f.TopMost = true;
         f.FormClosed += delegate { settingsOpen = null; };
@@ -283,6 +321,7 @@ static class Program {
             optSignAlt    = f.hkAlt;
             optSignCtrl   = f.hkCtrl;
             optSignShift  = f.hkShift;
+            if (f.cbA.Checked != wasAutostart) SetAutostart(f.cbA.Checked);
             SaveSettings();
             if (signMenuItem != null) signMenuItem.Text = "    Sign now  (" + HotkeyText() + ")";
             Log("settings: borderless=" + optBorderless + " sound=" + optSound +
@@ -1181,7 +1220,7 @@ static class Program {
 
 // ---------- Settings prozor ----------
 class SettingsForm : Form {
-    public CheckBox cbB, cbS, cbN, cbH, cbM;
+    public CheckBox cbB, cbS, cbN, cbH, cbM, cbA;
     public int hkVk; public bool hkAlt, hkCtrl, hkShift;
     Button btnHk;
     bool capturing = false;
@@ -1191,7 +1230,7 @@ class SettingsForm : Form {
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        ClientSize = new Size(340, 300);
+        ClientSize = new Size(340, 330);
         BackColor = Color.FromArgb(240, 240, 238);
         Font = new Font("Segoe UI", 9f);
         KeyPreview = true;
@@ -1201,11 +1240,12 @@ class SettingsForm : Form {
         cbN = Mk("Windows notification", 82);
         cbH = Mk("SIGN hotkey enabled", 112);
         cbM = Mk("Old sign method (moves mouse, alt-tabs)", 142);
+        cbA = Mk("Start with Windows", 172);
 
         var lbl = new Label();
         lbl.Text = "SIGN key:";
         lbl.ForeColor = Color.FromArgb(30, 30, 28);
-        lbl.SetBounds(24, 180, 70, 24);
+        lbl.SetBounds(24, 210, 70, 24);
         lbl.TextAlign = ContentAlignment.MiddleLeft;
         Controls.Add(lbl);
 
@@ -1215,7 +1255,7 @@ class SettingsForm : Form {
         btnHk.BackColor = Color.White;
         btnHk.ForeColor = Color.FromArgb(30, 30, 28);
         btnHk.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
-        btnHk.SetBounds(100, 178, 220, 28);
+        btnHk.SetBounds(100, 208, 220, 28);
         btnHk.Click += delegate {
             capturing = true;
             btnHk.Text = "Press keys...  (Esc = cancel)";
@@ -1242,7 +1282,7 @@ class SettingsForm : Form {
         save.BackColor = Color.FromArgb(63, 217, 104);
         save.ForeColor = Color.FromArgb(13, 43, 22);
         save.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
-        save.SetBounds(20, 236, 300, 40);
+        save.SetBounds(20, 266, 300, 40);
         save.Click += delegate { DialogResult = DialogResult.OK; Close(); };
         Controls.Add(save);
         AcceptButton = save;
