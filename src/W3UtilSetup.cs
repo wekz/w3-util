@@ -1,9 +1,9 @@
 // =====================================================================
-// Wekzy Setup - sve-u-jednom instalator (za USB)
+// W3 Util Setup - sve-u-jednom instalator (za USB)
 // Jedan dupli klik (UAC) instalira:
 //  - "Wekzy Dark" skin u RGC
 //  - custom zvukove u RGC
-//  - Wekz App (tray) u Documents\RGC-tools + Scheduled Task (autostart)
+//  - W3 Util (tray) u Documents\RGC-tools + Scheduled Task (autostart)
 //  - JetBrains Mono font (per-user)
 // Payload (skin/zvukovi/app/fontovi) je zapakovan unutar ovog exe-a.
 // Build: build-setup.ps1
@@ -16,7 +16,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-namespace WekzySetup {
+namespace W3UtilSetup {
 static class Setup {
     [STAThread]
     static void Main() {
@@ -25,7 +25,7 @@ static class Setup {
             string rgc = @"C:\Program Files (x86)\Warcraft III\Ranked Gaming Client";
             if (!File.Exists(Path.Combine(rgc, "rgc.exe"))) {
                 MessageBox.Show("Could not find RGC at the standard path.\nPlease locate rgc.exe manually.",
-                    "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    "W3 Util Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 var ofd = new OpenFileDialog();
                 ofd.Filter = "RGC client (rgc.exe)|rgc.exe";
                 ofd.Title = "Locate rgc.exe";
@@ -34,8 +34,8 @@ static class Setup {
             }
 
             if (MessageBox.Show(
-                "Installing to:\n" + rgc + "\n\n- 'Wekzy Dark' skin\n- custom sounds\n- Wekz App (autostart)\n- JetBrains Mono font\n\nContinue?",
-                "Wekzy Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                "Installing to:\n" + rgc + "\n\n- 'Wekzy Dark' skin\n- custom sounds\n- W3 Util (autostart)\n- JetBrains Mono font\n\nContinue?",
+                "W3 Util Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
 
             // 2) raspakuj payload iz sopstvenog exe-a
             string temp = Path.Combine(Path.GetTempPath(), "wekzy-setup-" + Guid.NewGuid().ToString("N").Substring(0, 8));
@@ -54,9 +54,10 @@ static class Setup {
             // 4) zvukovi
             CopyDir(Path.Combine(temp, "sound"), Path.Combine(rgc, "sound"));
 
-            // 5) Wekz App
+            // 5) W3 Util (ugasi i staru "Wekzy" verziju ako postoji)
             string tools = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "RGC-tools");
-            foreach (var p in Process.GetProcessesByName("Wekzy")) { try { p.Kill(); p.WaitForExit(3000); } catch { } }
+            foreach (var name in new[] { "W3Util", "Wekzy" })
+                foreach (var p in Process.GetProcessesByName(name)) { try { p.Kill(); p.WaitForExit(3000); } catch { } }
             CopyDir(Path.Combine(temp, "tools"), tools);
 
             // 6) fontovi (per-user, bez admina bi takodje radilo)
@@ -74,18 +75,18 @@ static class Setup {
             }
 
             // 7) scheduled task (autostart kao admin) + pokreni odmah
-            string exe = Path.Combine(tools, "Wekzy.exe");
+            string exe = Path.Combine(tools, "W3Util.exe");
             Run("schtasks", "/Create /F /TN \"RGC Game Watcher\" /TR \"\\\"" + exe + "\\\"\" /SC ONLOGON /RL HIGHEST");
             Process.Start(new ProcessStartInfo(exe) { WorkingDirectory = tools, UseShellExecute = true });
 
             try { Directory.Delete(temp, true); } catch { }
 
             MessageBox.Show(
-                "Installed!\n\n1. Start RGC and select the 'Wekzy Dark' skin in Preferences\n2. Add -window to the WC3 launch options in RGC\n3. Wekz App is in the system tray (hover the SIGN button and press Alt+F2 to calibrate)\n\nGL HF!",
-                "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                "Installed!\n\n1. Start RGC and select the 'Wekzy Dark' skin in Preferences\n2. Add -window to the WC3 launch options in RGC\n3. W3 Util is in the system tray (hover the SIGN button and press Alt+F2 to calibrate)\n\nGL HF!",
+                "W3 Util Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex) {
-            MessageBox.Show("Error: " + ex.Message, "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Error: " + ex.Message, "W3 Util Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

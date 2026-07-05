@@ -8,23 +8,23 @@ $tools = Split-Path -Parent $MyInvocation.MyCommand.Path
 $log = Join-Path $tools 'setup.log'
 Add-Content $log "$(Get-Date) install (exe) start"
 try {
-    if (-not (Test-Path "$tools\Wekzy.exe")) { throw "Wekzy.exe ne postoji - prvo pokreni build.ps1" }
+    if (-not (Test-Path "$tools\W3Util.exe")) { throw "W3Util.exe ne postoji - prvo pokreni build.ps1" }
 
     # ugasi stare instance (ps1 wrapper i exe, stara i nova imena)
     Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" |
         Where-Object { $_.CommandLine -like '*rgc-game-watcher*' } |
         ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
-    Get-Process RGCWatcher, Wekzy -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Get-Process RGCWatcher, Wekzy, W3Util -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     Start-Sleep 1
 
-    $action    = New-ScheduledTaskAction -Execute "$tools\Wekzy.exe" -WorkingDirectory $tools
+    $action    = New-ScheduledTaskAction -Execute "$tools\W3Util.exe" -WorkingDirectory $tools
     $trigger   = New-ScheduledTaskTrigger -AtLogOn -User "$env:COMPUTERNAME\Admin"
     $settings  = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -Hidden
     $principal = New-ScheduledTaskPrincipal -UserId "$env:COMPUTERNAME\Admin" -LogonType Interactive -RunLevel Highest
     Register-ScheduledTask -TaskName 'RGC Game Watcher' -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Force | Out-Null
 
     Start-ScheduledTask -TaskName 'RGC Game Watcher'
-    Add-Content $log "$(Get-Date) OK - task sada pokrece Wekzy.exe"
+    Add-Content $log "$(Get-Date) OK - task sada pokrece W3Util.exe"
 }
 catch {
     Add-Content $log "$(Get-Date) GRESKA: $_"

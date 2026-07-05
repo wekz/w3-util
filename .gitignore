@@ -1,4 +1,6 @@
 # build artifacts
+W3Util.exe
+W3UtilSetup.exe
 Wekzy.exe
 WekzySetup.exe
 *.obj

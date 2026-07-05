@@ -1,5 +1,5 @@
 // =====================================================================
-// Wekz App v2.1
+// W3 Util v2.2
 //  - war3 start -> borderless fullscreen + fokus u lobi + zvuk + notifikacija
 //    (zahteva "-window" u RGC WC3 launch opcijama)
 //  - SIGN hotkey (podesiv u Settings, default Alt+`) = klik u pozadini
@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-namespace WekzApp {
+namespace W3Util {
 static class Program {
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr h, int cmd);
@@ -544,7 +544,7 @@ static class Program {
                 "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Information);
         } catch (UnauthorizedAccessException) {
             MessageBox.Show("Access denied writing to war3.exe.\n" +
-                "Start Wekz App as administrator (or via the scheduled task) and try again.",
+                "Start W3 Util as administrator (or via the scheduled task) and try again.",
                 "4GB patch", MessageBoxButtons.OK, MessageBoxIcon.Error);
         } catch (Exception ex) {
             Log("LAA patch error: " + ex.Message);
@@ -630,7 +630,7 @@ static class Program {
                 "Latency fix", MessageBoxButtons.OK, MessageBoxIcon.Information);
         } catch (UnauthorizedAccessException) {
             MessageBox.Show("Access denied - administrator rights required.\n" +
-                "Start Wekz App via the scheduled task and try again.",
+                "Start W3 Util via the scheduled task and try again.",
                 "Latency fix", MessageBoxButtons.OK, MessageBoxIcon.Error);
         } catch (Exception ex) {
             MessageBox.Show("Failed: " + ex.Message, "Latency fix",
@@ -750,7 +750,7 @@ static class Program {
         string url = "https://ladder.rankedgaming.com/index.php?room=" + Uri.EscapeDataString(room) +
                      "&s=" + Uri.EscapeDataString(user);
         var req = (HttpWebRequest)WebRequest.Create(url);
-        req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) WekzApp/1.5";
+        req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) W3Util/2.2";
         req.Timeout = 8000;
         string html;
         using (var resp = (HttpWebResponse)req.GetResponse())
@@ -798,7 +798,7 @@ static class Program {
         try { File.WriteAllText(logFile, ""); } catch { }
         LoadSettings();
         LoadSignStates();
-        Log("start (Wekz App v2.1) | elevated=" + IsElevated());
+        Log("start (W3 Util v2.2) | elevated=" + IsElevated());
         InitSfx();
         vkGrave = MapVirtualKey(0x29, 3);
         if (vkGrave == 0) vkGrave = 0xC0;
@@ -807,7 +807,7 @@ static class Program {
         trayIcon = new NotifyIcon();
         try { trayIcon.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); }
         catch { trayIcon.Icon = SystemIcons.Information; }
-        trayIcon.Text = "Wekz App";
+        trayIcon.Text = "W3 Util";
 
         var menu = new ContextMenuStrip();
 
@@ -872,7 +872,7 @@ static class Program {
 
         // prvi start na novom racunaru: objasni kalibraciju
         if (!File.Exists(offsetFile) && optBalloon)
-            trayIcon.ShowBalloonTip(10000, "Wekz App - first run",
+            trayIcon.ShowBalloonTip(10000, "W3 Util - first run",
                 "Open RGC, place the mouse cursor on the SIGN button and press Alt+F2 to calibrate. " +
                 "After that " + HotkeyText() + " signs from anywhere - even in-game.",
                 ToolTipIcon.Info);
@@ -1187,7 +1187,7 @@ class SettingsForm : Form {
     bool capturing = false;
 
     public SettingsForm() {
-        Text = "Wekz App - Settings";
+        Text = "W3 Util - Settings";
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
@@ -1299,7 +1299,7 @@ class StatsForm : Form {
     string profileUrl = null;
 
     public StatsForm() {
-        Text = "Wekz App - RGC Stats";
+        Text = "W3 Util - RGC Stats";
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false; MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
