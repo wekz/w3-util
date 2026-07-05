@@ -15,6 +15,7 @@ Copy-Item "$rgc\sound\*.wav" "$stage\sound\"
 New-Item -ItemType Directory -Force "$stage\tools" | Out-Null
 Copy-Item "$tools\Wekzy.exe","$tools\game-alert.wav" "$stage\tools\"
 Copy-Item "$tools\backgrounds" "$stage\tools\backgrounds" -Recurse
+Copy-Item "$tools\uiskins" "$stage\tools\uiskins" -Recurse
 New-Item -ItemType Directory -Force "$stage\fonts" | Out-Null
 Copy-Item "$env:LOCALAPPDATA\Microsoft\Windows\Fonts\JetBrainsMono-*.ttf" "$stage\fonts\" -ErrorAction SilentlyContinue
 

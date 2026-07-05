@@ -7,5 +7,7 @@ WekzySetup.exe
 # local/machine-specific state (do not share)
 settings.ini
 sign-offset.txt
+sign-states.txt
+uiskin-installed.txt
 watcher.log
 setup.log

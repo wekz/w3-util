@@ -24,17 +24,17 @@ static class Setup {
             // 1) nadji RGC
             string rgc = @"C:\Program Files (x86)\Warcraft III\Ranked Gaming Client";
             if (!File.Exists(Path.Combine(rgc, "rgc.exe"))) {
-                MessageBox.Show("Ne mogu da nadjem RGC na standardnoj putanji.\nIzaberi rgc.exe rucno.",
+                MessageBox.Show("Could not find RGC at the standard path.\nPlease locate rgc.exe manually.",
                     "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 var ofd = new OpenFileDialog();
-                ofd.Filter = "RGC klijent (rgc.exe)|rgc.exe";
-                ofd.Title = "Pronadji rgc.exe";
+                ofd.Filter = "RGC client (rgc.exe)|rgc.exe";
+                ofd.Title = "Locate rgc.exe";
                 if (ofd.ShowDialog() != DialogResult.OK) return;
                 rgc = Path.GetDirectoryName(ofd.FileName);
             }
 
             if (MessageBox.Show(
-                "Instaliram u:\n" + rgc + "\n\n- skin 'Wekzy Dark'\n- custom zvukove\n- Wekz App (autostart)\n- JetBrains Mono font\n\nNastavi?",
+                "Installing to:\n" + rgc + "\n\n- 'Wekzy Dark' skin\n- custom sounds\n- Wekz App (autostart)\n- JetBrains Mono font\n\nContinue?",
                 "Wekzy Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
 
             // 2) raspakuj payload iz sopstvenog exe-a
@@ -43,7 +43,7 @@ static class Setup {
             string zipPath = Path.Combine(temp, "payload.zip");
             using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("payload.zip"))
             using (var f = File.Create(zipPath)) {
-                if (s == null) throw new Exception("payload.zip nije nadjen u exe-u");
+                if (s == null) throw new Exception("payload.zip not found inside the exe");
                 s.CopyTo(f);
             }
             ZipFile.ExtractToDirectory(zipPath, temp);
@@ -81,11 +81,11 @@ static class Setup {
             try { Directory.Delete(temp, true); } catch { }
 
             MessageBox.Show(
-                "Instalirano!\n\n1. Pokreni RGC i u Preferences izaberi skin 'Wekzy Dark'\n2. U WC3 launch opcije upisi: -window\n3. Wekz App je u system tray-u (Alt+F2 = kalibracija SIGN dugmeta)\n\nGL HF!",
+                "Installed!\n\n1. Start RGC and select the 'Wekzy Dark' skin in Preferences\n2. Add -window to the WC3 launch options in RGC\n3. Wekz App is in the system tray (hover the SIGN button and press Alt+F2 to calibrate)\n\nGL HF!",
                 "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex) {
-            MessageBox.Show("Greska: " + ex.Message, "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Error: " + ex.Message, "Wekzy Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
